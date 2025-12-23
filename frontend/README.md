@@ -48,6 +48,14 @@ open index.html
 ```
 
 ### Option 2: Local Server (Recommended)
+
+Using Vite (Node.js):
+```bash
+npm install
+npm run dev
+```
+Then visit the printed local URL (usually http://localhost:5173 or http://localhost:5174).
+
 Using Python:
 ```bash
 python3 -m http.server 8000
