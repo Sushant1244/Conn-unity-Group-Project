@@ -1,0 +1,14 @@
+{
+  "name": "conn-unity-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Conn-Unity static frontend (HTML/CSS/JS) served with Vite",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.10"
+  }
+}
