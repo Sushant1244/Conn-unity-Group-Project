@@ -1,0 +1,89 @@
+.header {
+  background: linear-gradient(90deg, #7c3aed, #c084fc);
+  padding: 18px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo-icon { width: 36px; height: 36px; }
+
+.logo-text {
+  font-weight: 600;
+  font-size: 20px;
+  color: #fff;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: #888;
+  font-size: 18px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 14px 10px 44px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  background-color: rgba(255,255,255,0.9);
+  outline: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.search-bar input:focus {
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.08);
+}
+
+.header-right { display: flex; align-items: center; gap: 14px; }
+
+.icon-button { background: none; border: none; font-size: 20px; color: rgba(255,255,255,0.95); cursor: pointer; padding: 8px; border-radius: 50%; }
+.icon-button:hover { background: rgba(255,255,255,0.06); }
+
+.login-button { background: rgba(255,255,255,0.16); color: #fff; border: none; padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: 500; }
+.login-button:hover { background: rgba(255,255,255,0.22); }
+
+.user-menu { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background-color: rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.user-info { display: flex; flex-direction: column; gap: 4px; }
+.username { font-size: 14px; font-weight: 500; color: #fff; }
+.logout-btn { background: none; border: none; color: rgba(255,255,255,0.9); cursor: pointer; font-size: 12px; padding: 0; }
+
+@media (max-width: 768px) {
+  .search-bar { display: none; }
+  .user-info { display: none; }
+}
+

@@ -1,0 +1,16 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "upstream"]
+	url = https://github.com/sumitshah/My-Conn-unity-Group-Project.git
+	fetch = +refs/heads/*:refs/remotes/upstream/*
+[branch "main"]
+	gk-last-accessed = 2025-12-29T11:21:40.961Z
+	gk-last-modified = 2025-12-29T11:21:40.961Z
+[remote "origin"]
+	url = https://github.com/sumitshah/Conn-unity-Group-Project.git
+	fetch = +refs/heads/*:refs/remotes/origin/*

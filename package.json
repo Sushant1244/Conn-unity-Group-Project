@@ -1,0 +1,16 @@
+{
+  "name": "conn-unity",
+  "version": "1.0.0",
+  "description": "Conn-unity Social Platform - Full Stack Application",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": ["social", "community", "platform"],
+  "author": "",
+  "license": "MIT"
+}
+
