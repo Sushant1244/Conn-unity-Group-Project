@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile - Conn-unity</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, system-ui, Arial; background:#f3f4f6; color:#111827; }
+    .container { max-width:900px; margin:28px auto; padding:18px; }
+    .card { background:white; padding:18px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+    .profile-header { display:flex; gap:16px; align-items:center; }
+    .avatar { width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:28px; background:linear-gradient(90deg,#4c1d95,#be185d); }
+    .muted { color:#6b7280; }
+    .small { font-size:13px; }
+    .btn { background:#1e3a8a; color:white; padding:8px 12px; border-radius:8px; border:0; cursor:pointer; }
+    .action-btn { background:#fff; border:1px solid #e6e6e6; padding:8px 10px; border-radius:8px; cursor:pointer; }
+    a.back { display:inline-block; margin-bottom:12px; color:#1e3a8a; text-decoration:none; font-weight:600; }
+    .meta { margin-top:10px; }
+    .bio { margin-top:12px; color:#374151; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="Dashboard.html">← Back to Dashboard</a>
+
+    <div class="card">
+      <div class="profile-header">
+        <div id="profileAvatar" class="avatar">G</div>
+        <div style="flex:1;">
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+            <div>
+              <div id="profileName" style="font-size:20px;font-weight:700">Guest</div>
+              <div id="profileRole" class="muted small">Visitor</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn" id="editProfileBtn" type="button">Edit Profile</button>
+              <button class="action-btn" id="logoutBtn" type="button">Logout</button>
+            </div>
+          </div>
+          <div class="muted small" id="profileEmail" style="margin-top:8px">guest@example.com</div>
+        </div>
+      </div>
+
+      <div class="meta" style="margin-top:12px">
+        <div style="font-weight:700">About</div>
+        <div class="bio" id="profileBio">This is a demo profile for the Conn-unity project. You can use this page as a starting point to add real profile data and editing flows.</div>
+      </div>
+    </div>
+
+    <!-- Edit dialog (simple prompt-based fallback + form) -->
+    <div id="editForm" style="display:none;margin-top:12px" class="card">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="inputName" placeholder="Display name" />
+        <input id="inputEmail" placeholder="Email" />
+        <input id="inputRole" placeholder="Role (e.g. Visitor)" />
+        <textarea id="inputBio" rows="3" placeholder="Short bio"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="cancelEdit" class="action-btn" type="button">Cancel</button>
+          <button id="saveEdit" class="btn" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'connunity_profile';
+
+    function defaultProfile(){ return { name:'Guest', email:'guest@example.com', role:'Visitor', avatarLetter:'G', bio:'This is a demo profile for the Conn-unity project.' }; }
+
+    function loadProfile(){
+      try{ const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return defaultProfile(); return JSON.parse(raw); }catch(e){ return defaultProfile(); }
+    }
+    function saveProfile(p){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); window.dispatchEvent(new Event('storage')); return true; }catch(e){ return false; } }
+
+    function renderProfile(){
+      const p = loadProfile();
+      const avatar = document.getElementById('profileAvatar'); if (avatar) avatar.textContent = (p.avatarLetter||p.name||'G')[0].toUpperCase();
+      const nameEl = document.getElementById('profileName'); if (nameEl) nameEl.textContent = p.name || 'Guest';
+      const roleEl = document.getElementById('profileRole'); if (roleEl) roleEl.textContent = p.role || 'Visitor';
+      const emailEl = document.getElementById('profileEmail'); if (emailEl) emailEl.textContent = p.email || '';
+      const bioEl = document.getElementById('profileBio'); if (bioEl) bioEl.textContent = p.bio || '';
+    }
+
+    // wire form buttons
+    const editBtn = document.getElementById('editProfileBtn');
+    const editForm = document.getElementById('editForm');
+    const inputName = document.getElementById('inputName');
+    const inputEmail = document.getElementById('inputEmail');
+    const inputRole = document.getElementById('inputRole');
+    const inputBio = document.getElementById('inputBio');
+    const saveEdit = document.getElementById('saveEdit');
+    const cancelEdit = document.getElementById('cancelEdit');
+
+    if (editBtn) editBtn.addEventListener('click', ()=>{
+      const p = loadProfile();
+      if (inputName) inputName.value = p.name || '';
+      if (inputEmail) inputEmail.value = p.email || '';
+      if (inputRole) inputRole.value = p.role || '';
+      if (inputBio) inputBio.value = p.bio || '';
+      if (editForm) editForm.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    if (cancelEdit) cancelEdit.addEventListener('click', ()=>{ if (editForm) editForm.style.display = 'none'; });
+    if (saveEdit) saveEdit.addEventListener('click', ()=>{
+      const p = { name: inputName.value || 'Guest', email: inputEmail.value || '', role: inputRole.value || 'Visitor', avatarLetter: (inputName.value||'G')[0].toUpperCase(), bio: inputBio.value || '' };
+      saveProfile(p); renderProfile(); if (editForm) editForm.style.display = 'none'; alert('Profile saved locally.');
+    });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', ()=>{ alert('This is a demo. No real auth available.'); });
+
+    // initial render
+    renderProfile();
+
+    // simple storage event handler to re-render across tabs
+    window.addEventListener('storage', (e)=>{ if (e.key === null || e.key === STORAGE_KEY) renderProfile(); });
+  </script>
+</body>
+</html>
