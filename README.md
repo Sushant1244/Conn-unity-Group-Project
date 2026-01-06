@@ -1,4 +1,4 @@
-# Group Project Connunity
+# Conn-unity-Group-Project
 
 A full-stack web application with React frontend and Node.js Express backend.
 
