@@ -255,21 +255,23 @@ body {
 }
 
 .floating-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 255, 0.9));
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 249, 255, 0.92));
     backdrop-filter: blur(30px);
-    border-radius: 28px;
-    padding: 2.25rem 2rem;
-    box-shadow: 0 30px 70px rgba(79, 70, 229, 0.2),
-                0 10px 30px rgba(79, 70, 229, 0.1);
+    border-radius: 26px;
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 28px 60px rgba(79, 70, 229, 0.18),
+                0 10px 30px rgba(79, 70, 229, 0.10);
     border: 1px solid rgba(255, 255, 255, 0.6);
-    transform: rotate(-6deg);
-    max-width: 420px;
+    transform: rotate(-8deg) skewX(-2deg);
+    transform-origin: center;
+    max-width: 520px;
     animation: float 6s ease-in-out infinite;
 }
 
 @keyframes float {
-    0%, 100% { transform: rotate(-6deg) translateY(0px); }
-    50% { transform: rotate(-6deg) translateY(-12px); }
+    0%, 100% { transform: rotate(-8deg) skewX(-2deg) translateY(0px); }
+    50% { transform: rotate(-8deg) skewX(-2deg) translateY(-10px); }
 }
 
 .card-title {
@@ -294,8 +296,8 @@ body {
 .card-features li {
     display: flex;
     align-items: center;
-    gap: 0.875rem;
-    padding: 0.625rem 0;
+    gap: 0.9rem;
+    padding: 0.7rem 0;
     font-size: 0.9rem;
     color: #475569;
     font-weight: 500;
@@ -321,22 +323,40 @@ body {
 }
 
 .btn-card-cta {
-    width: 100%;
+    position: relative;
+    width: 92%;
+    margin-left: 0.5rem;
     background: var(--gradient-button);
     color: var(--text-white);
     padding: 1rem 1.25rem;
-    border-radius: 14px;
+    border-radius: var(--radius-full);
     border: none;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25);
-    transition: all 0.3s ease;
+    box-shadow: 0 16px 28px rgba(99, 102, 241, 0.28);
+    transition: all 0.28s ease;
     font-size: 1rem;
 }
 
 .btn-card-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(85, 73, 255, 0.3);
+    box-shadow: 0 20px 34px rgba(85, 73, 255, 0.32);
+}
+
+/* Elliptical shadow under the CTA to match screenshot */
+.btn-card-cta::after {
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: -14px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center,
+        rgba(32, 33, 60, 0.22) 0%,
+        rgba(32, 33, 60, 0.12) 50%,
+        rgba(32, 33, 60, 0.00) 70%);
+    filter: blur(6px);
 }
 
 /* Hero Decorations */
@@ -358,11 +378,40 @@ body {
 }
 
 .hero-decoration-2 {
-    width: 250px;
-    height: 250px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.25), transparent);
-    bottom: 5%;
-    right: 5%;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.30), transparent 65%);
+    top: 6%;
+    right: 6%;
+}
+
+/* Top-right bubble overlapping the card */
+.floating-card::before {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    top: -6px;
+    right: -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(158, 162, 255, 0.35), rgba(99,102,241,0.15));
+    filter: blur(8px);
+}
+
+/* Elliptical base shadow under whole card */
+.floating-card::after {
+    content: "";
+    position: absolute;
+    left: 34px;
+    right: 34px;
+    bottom: -22px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center,
+        rgba(16, 19, 35, 0.22) 0%,
+        rgba(16, 19, 35, 0.12) 50%,
+        rgba(16, 19, 35, 0.00) 70%);
+    filter: blur(10px);
 }
 
 /* Features Section */
@@ -428,6 +477,12 @@ body {
     font-size: 2rem;
     margin: 0 auto 1.5rem;
 }
+
+/* Distinct icon colors per item to match screenshot */
+.card-features li:nth-child(1) .feature-icon { color: #6366F1; }
+.card-features li:nth-child(2) .feature-icon { color: #7C3AED; }
+.card-features li:nth-child(3) .feature-icon { color: #4338CA; }
+.card-features li:nth-child(4) .feature-icon { color: #F59E0B; }
 
 .feature-title {
     font-size: 1.25rem;
