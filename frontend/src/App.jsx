@@ -1,97 +1,82 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
-import Header from './components/Header'
-import SidebarProfile from './components/SidebarProfile'
-import MainContent from './components/MainContent'
-import CreatePostModal from './components/CreatePostModal'
-import Profile from './components/Profile'
-import AdminPanel from './components/AdminPanel'
-import AdminLogin from './components/AdminLogin'
-import Login from './components/Login'
-import CreateCommunityModal from './components/CreateCommunityModal'
-import CreateChallengeModal from './components/CreateChallengeModal'
-import Register from './components/Register'
+import { Header, CreatePostModal, AdminUsers, AdminCommunities, CommunityPoll, DailyChallenges, UserDashboard, ChangePassword } from './components'
 
 function App(){
-  const [profileOpen, setProfileOpen] = useState(false)
   const [createPostOpen, setCreatePostOpen] = useState(false)
-  const [adminOpen, setAdminOpen] = useState(false)
-  const [adminLoginOpen, setAdminLoginOpen] = useState(false)
-  const [communityOpen, setCommunityOpen] = useState(false)
-  const [challengeOpen, setChallengeOpen] = useState(false)
-  const [registerOpen, setRegisterOpen] = useState(false)
-  const [loginOpen, setLoginOpen] = useState(false)
+  const [adminUsersOpen, setAdminUsersOpen] = useState(false)
+  const [adminCommunitiesOpen, setAdminCommunitiesOpen] = useState(false)
+  const [pollOpen, setPollOpen] = useState(false)
+  const [challengesOpen, setChallengesOpen] = useState(false)
+  const [userDashboardOpen, setUserDashboardOpen] = useState(false)
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('connunity_current_user')) || null } catch { return null }
   })
 
-  // Listen for global UI events dispatched from small components (e.g., right-column buttons)
+  // Listen for global UI events dispatched from small components
   useEffect(()=>{
     function onOpenCreatePost(){ setCreatePostOpen(true); }
-    function onOpenCreateCommunity(){ setCommunityOpen(true); }
+    function onOpenPoll(){ setPollOpen(true) }
+    function onOpenChallenges(){ setChallengesOpen(true) }
+    function onOpenUserDashboard(){ setUserDashboardOpen(true) }
+    function onOpenChangePassword(){ setChangePasswordOpen(true) }
+    function onOpenAdminUsers(){ setAdminUsersOpen(true) }
+    function onOpenAdminCommunities(){ setAdminCommunitiesOpen(true) }
     function onLogout(){ localStorage.removeItem('connunity_current_user'); setCurrentUser(null); }
-  function onOpenLogin(){ setLoginOpen(true); }
-  function onOpenRegister(){ setRegisterOpen(true); }
-  function onOpenAdmin(){ setAdminLoginOpen(true); }
+
     window.addEventListener('openCreatePost', onOpenCreatePost);
-    window.addEventListener('openCreateCommunity', onOpenCreateCommunity);
-  window.addEventListener('openLogin', onOpenLogin);
-  window.addEventListener('openRegister', onOpenRegister);
-    window.addEventListener('openAdmin', onOpenAdmin);
+    window.addEventListener('openPoll', onOpenPoll);
+    window.addEventListener('openChallenges', onOpenChallenges);
+    window.addEventListener('openUserDashboard', onOpenUserDashboard);
+    window.addEventListener('openChangePassword', onOpenChangePassword);
+    window.addEventListener('openAdminUsers', onOpenAdminUsers);
+    window.addEventListener('openAdminCommunities', onOpenAdminCommunities);
     window.addEventListener('connunityLogout', onLogout);
+
     return ()=>{
       window.removeEventListener('openCreatePost', onOpenCreatePost);
-      window.removeEventListener('openCreateCommunity', onOpenCreateCommunity);
-  window.removeEventListener('openLogin', onOpenLogin);
-  window.removeEventListener('openRegister', onOpenRegister);
-      window.removeEventListener('openAdmin', onOpenAdmin);
+      window.removeEventListener('openPoll', onOpenPoll);
+      window.removeEventListener('openChallenges', onOpenChallenges);
+      window.removeEventListener('openUserDashboard', onOpenUserDashboard);
+      window.removeEventListener('openChangePassword', onOpenChangePassword);
+      window.removeEventListener('openAdminUsers', onOpenAdminUsers);
+      window.removeEventListener('openAdminCommunities', onOpenAdminCommunities);
       window.removeEventListener('connunityLogout', onLogout);
     }
   },[])
 
-  // open login modal via URL param: ?login=1
+  // URL param shortcuts (e.g. ?poll=1)
   useEffect(()=>{
     try{
       const sp = new URLSearchParams(window.location.search);
-  if (sp.get('login') === '1') requestAnimationFrame(()=> setLoginOpen(true));
-  if (sp.get('register') === '1') requestAnimationFrame(()=> setRegisterOpen(true));
-  if (sp.get('admin') === '1') requestAnimationFrame(()=> setAdminLoginOpen(true));
-  }catch{ console.warn('open login param parse failed') }
+      if (sp.get('poll') === '1') requestAnimationFrame(()=> setPollOpen(true));
+      if (sp.get('challenges') === '1') requestAnimationFrame(()=> setChallengesOpen(true));
+      if (sp.get('dashboard') === '1') requestAnimationFrame(()=> setUserDashboardOpen(true));
+      if (sp.get('changePassword') === '1') requestAnimationFrame(()=> setChangePasswordOpen(true));
+      if (sp.get('adminUsers') === '1') requestAnimationFrame(()=> setAdminUsersOpen(true));
+      if (sp.get('adminCommunities') === '1') requestAnimationFrame(()=> setAdminCommunitiesOpen(true));
+    }catch{ console.warn('open param parse failed') }
   },[])
   return (
     <div className="dashboard-root">
       <div className="container">
-  <Header profile={currentUser} currentUser={currentUser} onOpenProfile={()=>setProfileOpen(true)} onOpenCreatePost={()=>setCreatePostOpen(true)} onOpenCreateCommunity={()=>setCommunityOpen(true)} onOpenCreateChallenge={()=>setChallengeOpen(true)} onOpenAdmin={()=>setAdminLoginOpen(true)} onOpenRegister={()=>setRegisterOpen(true)} onOpenLogin={()=>setLoginOpen(true)} onLogout={()=>{ localStorage.removeItem('connunity_current_user'); setCurrentUser(null) }} />
+  <Header currentUser={currentUser} onOpenCreatePost={()=>setCreatePostOpen(true)} onLogout={()=>{ localStorage.removeItem('connunity_current_user'); setCurrentUser(null) }} />
 
-        <main style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:20}}>
-          <section>
-            <MainContent />
-          </section>
-          <aside className="right-col">
-            <SidebarProfile onOpenProfile={()=>setProfileOpen(true)} />
-            <div className="card">
-              <div style={{fontWeight:700,marginBottom:8}}>Popularity Community</div>
-              <div className="community-list">Loading...</div>
-            </div>
-            <div className="card challenges">
-              <div style={{fontWeight:700,marginBottom:8}}>Daily Challenges</div>
-              <div></div>
-            </div>
-            <div className="card">
-              <div style={{fontWeight:700,marginBottom:8}}>About Community</div>
-              <div className="muted">A friendly place to share ideas, discover new communities and meet creators.</div>
-            </div>
-          </aside>
+        <main style={{padding:20}}>
+          <div className="card">
+            <h2>Welcome to Conn-unity</h2>
+            <div className="muted">Use the header buttons to open Create Post, Community Poll, Daily Challenges, Dashboard, or Admin sections.</div>
+          </div>
         </main>
 
   <CreatePostModal open={createPostOpen} onClose={()=>setCreatePostOpen(false)} />
-  <AdminLogin open={adminLoginOpen} onClose={()=>setAdminLoginOpen(false)} onSuccess={()=>setAdminOpen(true)} />
-  <AdminPanel open={adminOpen} onClose={()=>setAdminOpen(false)} />
-  <Register open={registerOpen} onClose={()=>setRegisterOpen(false)} />
-  <Login open={loginOpen} onClose={()=>setLoginOpen(false)} onSuccess={(user)=>{ try{ localStorage.setItem('connunity_current_user', JSON.stringify(user)) }catch(err){ console.warn('persist current user failed', err) } setCurrentUser(user) }} />
-  <CreateCommunityModal open={communityOpen} onClose={()=>setCommunityOpen(false)} />
-  <CreateChallengeModal open={challengeOpen} onClose={()=>setChallengeOpen(false)} />
-  <Profile open={profileOpen} onClose={()=>setProfileOpen(false)} />
+  <AdminUsers open={adminUsersOpen} onClose={()=>setAdminUsersOpen(false)} />
+  <AdminCommunities open={adminCommunitiesOpen} onClose={()=>setAdminCommunitiesOpen(false)} />
+  <CommunityPoll open={pollOpen} onClose={()=>setPollOpen(false)} />
+  <DailyChallenges open={challengesOpen} onClose={()=>setChallengesOpen(false)} />
+  <UserDashboard open={userDashboardOpen} onClose={()=>setUserDashboardOpen(false)} />
+  <ChangePassword open={changePasswordOpen} onClose={()=>setChangePasswordOpen(false)} />
       </div>
       <footer className="site-footer">
         <div className="footer-inner">

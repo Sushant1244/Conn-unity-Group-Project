@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Header({ profile, currentUser, onOpenProfile, onOpenCreatePost, onLogout }){
+export default function Header({ profile, currentUser, onOpenCreatePost, onLogout }){
   return (
     <header className="card header">
       <div style={{display:'flex',alignItems:'center',gap:12}}>
@@ -25,11 +25,16 @@ export default function Header({ profile, currentUser, onOpenProfile, onOpenCrea
       <div style={{display:'flex',alignItems:'center',gap:12}}>
         <button className="icon-btn" title="Messages">💬</button>
         <button className="icon-btn" title="Notifications">🔔</button>
-        <button className="btn" type="button" onClick={onOpenCreatePost}>Create Post</button>
+  <button className="btn" type="button" onClick={onOpenCreatePost}>Create Post</button>
+  <button className="btn" type="button" onClick={()=> window.dispatchEvent(new CustomEvent('openPoll'))}>Community Poll</button>
+  <button className="btn" type="button" onClick={()=> window.dispatchEvent(new CustomEvent('openChallenges'))}>Daily Challenges</button>
         {currentUser ? (
-          <button className="action-btn" type="button" onClick={onLogout}>Logout</button>
+          <>
+            <button className="action-btn" type="button" onClick={onLogout}>Logout</button>
+            <button className="action-btn" type="button" onClick={()=> window.dispatchEvent(new CustomEvent('openUserDashboard'))} style={{marginLeft:8}}>Dashboard</button>
+          </>
         ) : null}
-        <button className="profile-pill" onClick={onOpenProfile} type="button">
+  <button className="profile-pill" onClick={()=> window.dispatchEvent(new CustomEvent('openUserDashboard'))} type="button">
           <div className="avatar">{(profile && (profile.avatarLetter || (profile.name && profile.name[0]))) || 'D'}</div>
         </button>
       </div>

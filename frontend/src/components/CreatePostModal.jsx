@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+const API = window.__CONNUNITY_API__ || 'http://localhost:4000'
+
 function readPosts(){ try{ const raw = localStorage.getItem('connunity_posts'); return raw ? JSON.parse(raw) : []; }catch{ return []; } }
 function writePosts(arr){ try{ localStorage.setItem('connunity_posts', JSON.stringify(arr||[])); return true; }catch{ return false; } }
 
@@ -19,16 +21,16 @@ export default function CreatePostModal({ open, onClose }){
 
   function save(){
     if (!title.trim()) { alert('Title required'); return; }
-    const posts = readPosts();
-    const id = 'p' + Math.random().toString(36).slice(2,9);
-    const item = { id, title: title.trim(), body: body.trim(), community: community || (communities[0] && communities[0].name) || 'general', image: imageData, likes:0, dislikes:0, comments:[], createdAt: Date.now(), author: 'You' };
-    posts.unshift(item);
-    if (writePosts(posts)){
+    const item = { title: title.trim(), body: body.trim(), community: community || (communities[0] && communities[0].name) || 'general', image: imageData, author: 'You' };
+    fetch(API + '/api/posts', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(item) }).then(r=>r.json()).then(created=>{
+      // broadcast change
       window.dispatchEvent(new Event('storage'));
       onClose && onClose();
-      // reset
       setTitle(''); setBody(''); setCommunity(''); setImageData('');
-    } else { alert('Save failed'); }
+    }).catch(()=>{
+      // fallback to local
+      const posts = readPosts(); const id = 'p' + Math.random().toString(36).slice(2,9); const fallback = { id, ...item, createdAt: Date.now(), likes:0, dislikes:0, comments:[] }; posts.unshift(fallback); if (writePosts(posts)){ window.dispatchEvent(new Event('storage')); onClose && onClose(); setTitle(''); setBody(''); setCommunity(''); setImageData(''); } else { alert('Save failed') }
+    })
   }
 
   if (!open) return null;

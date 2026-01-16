@@ -1,0 +1,21 @@
+{
+  "posts": [],
+  "poll": {
+    "question": "Which feature should we build next?",
+    "options": [
+      { "id": "o1", "text": "Live chat", "votes": 120 },
+      { "id": "o2", "text": "More templates", "votes": 80 },
+      { "id": "o3", "text": "Advanced filters", "votes": 50 }
+    ]
+  },
+  "challenges": [
+    { "id": "d1", "title": "Share a helpful tip", "reward": "+5 XP", "completedBy": [] },
+    { "id": "d2", "title": "Post a tutorial", "reward": "+10 XP", "completedBy": [] },
+    { "id": "d3", "title": "Invite a friend", "reward": "+3 XP", "completedBy": [] }
+  ],
+  "users": [],
+  "communities": [
+    { "id": "c1", "name": "technology", "members": 3240, "posts": 1523, "status": "Active", "category": "Tech" },
+    { "id": "c2", "name": "gaming", "members": 2180, "posts": 982, "status": "Active", "category": "Entertainment" }
+  ]
+}

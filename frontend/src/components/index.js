@@ -1,0 +1,9 @@
+// Central exports: only expose the allowed components
+export { default as Header } from './Header'
+export { default as CreatePostModal } from './CreatePostModal'
+export { default as AdminUsers } from './AdminUsers'
+export { default as AdminCommunities } from './AdminCommunities'
+export { default as CommunityPoll } from './CommunityPoll'
+export { default as DailyChallenges } from './DailyChallenges'
+export { default as UserDashboard } from './UserDashboard'
+export { default as ChangePassword } from './ChangePassword'
