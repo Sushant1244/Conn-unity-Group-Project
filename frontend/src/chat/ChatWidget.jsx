@@ -3,17 +3,19 @@ import { io } from 'socket.io-client'
 
 const defaultRooms = ['general', 'random', 'announcements']
 
-export default function ChatWidget({ open, onClose, username = 'You' }) {
+export default function ChatWidget({ open, onClose, username = 'You', initialRoom }) {
   const [socket, setSocket] = useState(null)
   const [connected, setConnected] = useState(false)
-  const [activeRoom, setActiveRoom] = useState('general')
+  const [activeRoom, setActiveRoom] = useState(initialRoom || 'general')
   const [rooms, setRooms] = useState(defaultRooms)
+  const [people, setPeople] = useState([]) // handles
   const [typing, setTyping] = useState({}) // {room: username}
   const [unreads, setUnreads] = useState({}) // {room: count}
   const [input, setInput] = useState('')
   const [history, setHistory] = useState(() => {
     try { return JSON.parse(localStorage.getItem('connunity.chat.history') || '{}') } catch { return {} }
   })
+  const [presence, setPresence] = useState({}) // { room: { members:[], count:number } }
   const listRef = useRef(null)
   const typingRef = useRef(null)
 
@@ -21,11 +23,30 @@ export default function ChatWidget({ open, onClose, username = 'You' }) {
 
   useEffect(() => {
     if (!open) return
+    // Prefer logged-in name from localStorage if available
+    try {
+      const me = JSON.parse(localStorage.getItem('connunity_current_user') || 'null')
+      if (me?.username) username = me.username
+    } catch {}
+
+    // Load dynamic sources: joined communities and people
+    try {
+      const jc = JSON.parse(localStorage.getItem('connunity.joinedCommunities') || '[]')
+      if (Array.isArray(jc) && jc.length) setRooms(prev => Array.from(new Set([...prev, ...jc.map(n => `c/${n}`)])))
+    } catch {}
+    try {
+      const f = JSON.parse(localStorage.getItem('connunity.followers') || '[]')
+      const g = JSON.parse(localStorage.getItem('connunity.following') || '[]')
+      const unique = Array.from(new Set([...(Array.isArray(f)?f:[]), ...(Array.isArray(g)?g:[])]))
+      setPeople(unique)
+    } catch {}
+
     const s = io('http://localhost:4000', { transports: ['websocket', 'polling'] })
     setSocket(s)
     s.on('connect', () => {
       setConnected(true)
       s.emit('chat:join', { room: activeRoom, username })
+      s.emit('chat:set-username', { username })
     })
     s.on('disconnect', () => setConnected(false))
 
@@ -56,11 +77,23 @@ export default function ChatWidget({ open, onClose, username = 'You' }) {
       typingRef.current = setTimeout(() => setTyping(prev => ({ ...prev, [room]: null })), 1200)
     })
 
+    s.on('chat:presence', ({ room, members, count }) => {
+      setPresence(prev => ({ ...prev, [room]: { members: members || [], count: count || 0 } }))
+    })
+
     return () => {
       s.disconnect()
       setSocket(null)
     }
   }, [open])
+
+  useEffect(() => {
+    if (!socket || !open) return
+    if (initialRoom) {
+      setActiveRoom(initialRoom)
+      socket.emit('chat:join', { room: initialRoom, username })
+    }
+  }, [initialRoom, open, socket])
 
   useEffect(() => {
     // Clear unreads when switching into a room
@@ -97,24 +130,57 @@ export default function ChatWidget({ open, onClose, username = 'You' }) {
     if (socket) socket.emit('chat:typing', { room: activeRoom, username })
   }
 
+  const switchRoom = (r) => {
+    setActiveRoom(r)
+    if (socket) socket.emit('chat:join', { room: r, username })
+  }
+
   if (!open) return null
 
   return (
     <div className="chat-drawer" onClick={(e)=>e.stopPropagation()}>
       <div className="chat-header">
         <div className="chat-title">💬 Chat</div>
+        <div className="chat-roomname">#{activeRoom}</div>
+        <div className="chat-presence">
+          {(presence[activeRoom]?.members || []).slice(0,6).map((m, idx) => (
+            <span key={m+idx} className="presence-chip" title={m}>{m.slice(0,1).toUpperCase()}</span>
+          ))}
+          {((presence[activeRoom]?.members || []).length > 6) && (
+            <span className="presence-more">+{(presence[activeRoom].members.length - 6)}</span>
+          )}
+          <span className="presence-text">
+            {presence[activeRoom]?.count ? `${presence[activeRoom].count} online` : '0 online'}
+          </span>
+        </div>
         <div className="chat-status">{connected ? 'Online' : 'Offline'}</div>
         <button className="chat-close" aria-label="Close chat" onClick={onClose}>✕</button>
       </div>
-      <div className="chat-body">
+        <div className="chat-body">
         <div className="chat-rooms">
+          <div className="chat-section-title">Rooms</div>
           {rooms.map(r => (
             <button key={r}
               className={`chat-room${activeRoom===r ? ' active' : ''}`}
-              onClick={() => setActiveRoom(r)}
+              onClick={() => switchRoom(r)}
             >
-              <span>#{r}</span>
+              <span>{r.startsWith('c/') ? r : `#${r}`}</span>
+              {presence[r]?.count ? <span className="chat-count">{presence[r].count}</span> : null}
               {!!(unreads[r]) && <span className="chat-unread">{unreads[r] > 9 ? '9+' : unreads[r]}</span>}
+            </button>
+          ))}
+          <div className="chat-section-title" style={{marginTop:12}}>People</div>
+          {people.length === 0 && (
+            <div className="chat-empty">No followers yet</div>
+          )}
+          {people.map(h => (
+            <button key={h}
+              className={`chat-room${activeRoom===`dm:${h}` ? ' active' : ''}`}
+              onClick={() => switchRoom(`dm:${h}`)}
+            >
+              <span>@{h}</span>
+              {presence[`dm:${h}`]?.count ? <span className="chat-count">{presence[`dm:${h}`].count}</span> : null}
+              {!!(unreads[`dm:${h}`]) && <span className="chat-unread">{unreads[`dm:${h}`] > 9 ? '9+' : unreads[`dm:${h}`]}</span>}
             </button>
           ))}
         </div>
