@@ -4,11 +4,13 @@ import Createcommunity from './pages/Createcommunity'
 import AllCommunities from './pages/AllCommunities'
 import CreatePost from './pages/CreatePost'
 import Profile from './pages/Profile'
+import ChatWidget from './chat/ChatWidget'
 
 export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAllModal, setShowAllModal] = useState(false)
   const [showCreatePostModal, setShowCreatePostModal] = useState(false)
+  const [showChat, setShowChat] = useState(false)
   const [createPostOpts, setCreatePostOpts] = useState({ initialMood: null, autoOpenMedia: false })
   const [showProfile, setShowProfile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -304,6 +306,14 @@ export default function Dashboard() {
     })
     const name = popularCommunities[idx]?.name || 'community'
     showToast(`Joined c/${name} successfully`)
+    try {
+      const raw = localStorage.getItem('connunity.joinedCommunities')
+      const list = raw ? JSON.parse(raw) : []
+      if (!list.includes(name)) {
+        list.push(name)
+        localStorage.setItem('connunity.joinedCommunities', JSON.stringify(list))
+      }
+    } catch {}
     setTimeout(() => pushNotif({ type: 'community', text: `New post in c/${name}: Welcome thread`, community: name }), 1200)
   }
 
@@ -338,7 +348,7 @@ export default function Dashboard() {
             />
           </div>
           <div className="top-actions">
-            <button className="icon-btn">💬</button>
+            <button className="icon-btn" title="Open Chat" onClick={() => setShowChat(true)}>💬</button>
             <button className="icon-btn notif-btn" title="Notifications" onClick={() => setShowNotif((v) => !v)}>
               🔔
               {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
@@ -719,6 +729,14 @@ export default function Dashboard() {
               return copy
             })
             showToast(`Joined c/${name} successfully`)
+            try {
+              const raw = localStorage.getItem('connunity.joinedCommunities')
+              const list = raw ? JSON.parse(raw) : []
+              if (!list.includes(name)) {
+                list.push(name)
+                localStorage.setItem('connunity.joinedCommunities', JSON.stringify(list))
+              }
+            } catch {}
           }}
         />
       )}
@@ -730,6 +748,13 @@ export default function Dashboard() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.2)', fontWeight: 600, zIndex: 3000
         }}>
           {toast.message}
+        </div>
+      )}
+
+      {/* Chat Widget */}
+      {showChat && (
+        <div onClick={() => setShowChat(false)} style={{ position:'fixed', inset:0, zIndex:4400, background:'transparent' }}>
+          <ChatWidget open={showChat} onClose={() => setShowChat(false)} username="Dipendra" />
         </div>
       )}
     </div>
