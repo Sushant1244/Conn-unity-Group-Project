@@ -42,6 +42,14 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]) // {id, type, text, postId?, read}
   const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications])
 
+  // Theme (light/dark) persisted
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('connunity_theme') || 'light' } catch { return 'light' }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('connunity_theme', theme) } catch {}
+  }, [theme])
+
     const parseCount = (val) => {
       if (typeof val === 'number') return val
       if (!val) return 0
@@ -342,7 +350,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-root">
+    <div className="dashboard-root" data-theme={theme}>
       <header className="topbar">
         <div className="topbar-inner">
           <div className="brand">
@@ -358,6 +366,7 @@ export default function Dashboard() {
             />
           </div>
           <div className="top-actions">
+            <button className="icon-btn" title="Toggle Theme" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle Theme">{theme === 'light' ? '🌙' : '☀️'}</button>
             <button className="icon-btn" title="Open Chat" onClick={() => setShowChat(true)}>💬</button>
             <button className="icon-btn notif-btn" title="Notifications" onClick={() => setShowNotif((v) => !v)}>
               🔔

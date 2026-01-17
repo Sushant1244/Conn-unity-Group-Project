@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
-import { ArrowLeft, ShieldCheck, LayoutDashboard, Gavel, Users, Building2, FileText, BarChart3, Settings, UserCircle, MessageSquare, TriangleAlert } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { ArrowLeft, ShieldCheck, LayoutDashboard, Gavel, Users, Building2, FileText, BarChart3, Settings, UserCircle, MessageSquare, AlertTriangle } from 'lucide-react'
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend } from 'chart.js'
 import '../admin-dashboard.css'
 
@@ -9,8 +9,18 @@ export default function AdminDashboard() {
   const lineRef = useRef(null)
   const barRef = useRef(null)
   const pieRef = useRef(null)
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('connunity_admin_theme') || 'light' } catch { return 'light' }
+  })
+  const isDark = theme === 'dark'
 
   useEffect(() => {
+    try { localStorage.setItem('connunity_admin_theme', theme) } catch {}
+  }, [theme])
+
+  useEffect(() => {
+    if (!lineRef.current || !barRef.current || !pieRef.current) return
+    try {
     // Line Chart: User Growth
     const lctx = lineRef.current.getContext('2d')
     const lineChart = new Chart(lctx, {
@@ -72,24 +82,40 @@ export default function AdminDashboard() {
     })
 
     return () => { lineChart.destroy(); barChart.destroy(); pieChart.destroy() }
+    } catch (err) {
+      console.error('AdminDashboard charts error:', err)
+    }
   }, [])
 
   return (
-    <div className="admin-root">
+    <div className="admin-root" data-theme={theme}>
       <header className="admin-header">
         <div className="admin-header-inner">
-          <div className="header-left"><ArrowLeft size={18} /> <span>Back to Site</span></div>
+          <div className="header-left" onClick={() => { window.location.href = '/' }} style={{ cursor: 'pointer' }}><ArrowLeft size={18} /> <span>Back to Site</span></div>
           <div className="header-center"><ShieldCheck size={18} /> <span>Admin Panel</span></div>
           <div className="header-right">
             <span style={{ marginRight: 10 }}>Welcome, admin</span>
+            <button
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              style={{
+                padding: '6px 10px',
+                borderRadius: 8,
+                border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+                background: isDark ? '#1a1f28' : '#fff',
+                color: isDark ? '#e5e7eb' : '#333',
+                cursor: 'pointer',
+                marginRight: 8
+              }}
+              aria-label="Toggle theme"
+            >{theme === 'light' ? '🌙' : '☀️'} Theme</button>
             <button
               onClick={() => { localStorage.removeItem('connunity_admin_token'); window.location.href = '/auth.html#admin' }}
               style={{
                 padding: '6px 10px',
                 borderRadius: 8,
-                border: '1px solid rgba(0,0,0,0.08)',
-                background: '#fff',
-                color: '#333',
+                border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)',
+                background: isDark ? '#1a1f28' : '#fff',
+                color: isDark ? '#e5e7eb' : '#333',
                 cursor: 'pointer'
               }}
             >Logout</button>
@@ -128,7 +154,7 @@ export default function AdminDashboard() {
             <div className="stat-badge">+15.5% from last month</div>
           </div>
           <div className="stat-card">
-            <div className="stat-head"><div className="icon-box orange"><TriangleAlert size={16}/></div><span>Pending Reports</span></div>
+            <div className="stat-head"><div className="icon-box orange"><AlertTriangle size={16}/></div><span>Pending Reports</span></div>
             <div className="stat-value">23</div>
             <div className="stat-badge">+12.5% from last month</div>
           </div>

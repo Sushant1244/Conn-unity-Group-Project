@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="footer-right">
                     <p class="footer-help">Need help or have questions?</p>
                     <a href="#" class="footer-link">Contact Us →</a>
-                    <a href="#" class="footer-link">Admin Login →</a>
+                    <a href="/auth.html#admin" class="footer-link">Admin Login →</a>
                 </div>
             </div>
             <div class="footer-bottom">

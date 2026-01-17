@@ -19,6 +19,11 @@ app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, '..', 'frontend')))
 
 // Mock register endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, ts: Date.now() })
+})
+
+// Mock register endpoint
 app.post('/api/register', (req, res) => {
   const { username, email, password } = req.body
   if (!username || !email || !password) {
@@ -42,8 +47,10 @@ app.post('/api/login', (req, res) => {
 app.post('/api/admin-login', (req, res) => {
   const { username, password, code } = req.body
   if (!username || !password || !code) return res.status(400).json({ success: false, message: 'Missing fields' })
-  if (code !== '123456') {
-    return res.status(401).json({ success: false, message: 'Invalid 2FA code (demo expects 123456)' })
+  const normalized = String(code).toUpperCase()
+  // Accept both old numeric demo and the requested alphanumeric demo code
+  if (normalized !== '123456' && normalized !== '99390D') {
+    return res.status(401).json({ success: false, message: 'Invalid 2FA code (demo expects 123456 or 99390D)' })
   }
   console.log('ADMIN LOGIN', { username })
   return res.json({ success: true, token: 'mock-admin-token' })
