@@ -17,7 +17,7 @@ A beautiful, modern landing page for the Conn-Unity community platform built wit
 frontend/
 ├── index.html      # Main HTML file
 ├── styles.css      # All styling and animations
-├── app.js          # JavaScript functionality
+├── landing_page.js # JavaScript functionality (renamed from app.js)
 ├── logo.jpeg       # Brand logo image
 └── README.md       # This file
 ```
@@ -120,7 +120,7 @@ Edit CSS variables in `styles.css`:
 Edit text content in `index.html`
 
 ### Modify Animations
-Adjust timing and effects in `app.js` and `styles.css`
+Adjust timing and effects in `landing_page.js` and `styles.css`
 
 ## 📊 Statistics
 
@@ -147,7 +147,7 @@ This project is created for Conn-Unity community platform.
 To make changes:
 1. Edit the HTML structure in `index.html`
 2. Modify styles in `styles.css`
-3. Add functionality in `app.js`
+3. Add functionality in `landing_page.js`
 4. Refresh your browser to see changes
 
 ## 🎨 Design Credits

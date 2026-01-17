@@ -176,6 +176,22 @@
 .modal-content { padding: 18px 22px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 22px; border-top: 1px solid rgba(0,0,0,0.05); }
 
+/* User Profile Modal */
+.user-modal { width: 600px; }
+.user-header { display:flex; align-items:center; gap:16px; }
+.user-avatar { width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg,#b89dff 0%, #a0d8ff 50%, #82e9de 100%); color:#2b0b6f; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:36px; box-shadow: 0 4px 16px rgba(91,58,255,0.2); border: 2px solid rgba(255,255,255,0.6); }
+.user-info { flex:1; }
+.user-handle { font-weight:800; font-size:18px; color:#111; }
+.user-sub { color:#9ca3af; font-size:13px; }
+.user-actions { display:flex; gap:10px; margin-top:10px; }
+.user-stats { display:flex; gap:18px; margin-top:16px; }
+.user-stats .stat { background:#fafbfc; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
+.user-stats .num { font-weight:800; color:#111; }
+.user-stats .lbl { color:#6b7280; font-size:12px; }
+.user-section { margin-top:18px; }
+.user-section-title { font-weight:800; font-size:14px; color:#111; margin-bottom:6px; }
+.user-about { color:#6b7280; font-size:13px; }
+
 /* Popularity Community */
 .popularity-card .card-title { margin-bottom:12px }
 .pop-list { list-style:none; padding:0; margin:0 0 12px 0 }

@@ -5,12 +5,16 @@ import AllCommunities from './pages/AllCommunities'
 import CreatePost from './pages/CreatePost'
 import Profile from './pages/Profile'
 import ChatWidget from './chat/ChatWidget'
+import UserProfileModal from './components/UserProfileModal'
 
 export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAllModal, setShowAllModal] = useState(false)
   const [showCreatePostModal, setShowCreatePostModal] = useState(false)
   const [showChat, setShowChat] = useState(false)
+  const [initialChatRoom, setInitialChatRoom] = useState(null)
+  const [showUserProfile, setShowUserProfile] = useState(false)
+  const [userHandle, setUserHandle] = useState(null)
   const [createPostOpts, setCreatePostOpts] = useState({ initialMood: null, autoOpenMedia: false })
   const [showProfile, setShowProfile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -226,6 +230,12 @@ export default function Dashboard() {
   const openCreatePostWithMood = (m) => {
     setCreatePostOpts({ initialMood: m, autoOpenMedia: true })
     setShowCreatePostModal(true)
+  }
+
+  const openUserProfile = (author) => {
+    const h = String(author || '').replace(/^u\//,'')
+    setUserHandle(h)
+    setShowUserProfile(true)
   }
 
   const toggleUpvote = (id) => {
@@ -499,7 +509,7 @@ export default function Dashboard() {
                   </div>
                   <div className="comm-name">c/{p.community}</div>
                   <span className="dot">•</span>
-                  <div className="author">{p.author}</div>
+                  <div className="author" style={{cursor:'pointer'}} onClick={() => openUserProfile(p.author)}>{p.author}</div>
                   <span className="dot">•</span>
                   <div className="time">{p.time} ago</div>
                 </div>
@@ -754,8 +764,16 @@ export default function Dashboard() {
       {/* Chat Widget */}
       {showChat && (
         <div onClick={() => setShowChat(false)} style={{ position:'fixed', inset:0, zIndex:4400, background:'transparent' }}>
-          <ChatWidget open={showChat} onClose={() => setShowChat(false)} username="Dipendra" />
+          <ChatWidget open={showChat} onClose={() => setShowChat(false)} username="Dipendra" initialRoom={initialChatRoom} />
         </div>
+      )}
+
+      {showUserProfile && userHandle && (
+        <UserProfileModal
+          handle={userHandle}
+          onClose={() => setShowUserProfile(false)}
+          onMessage={(h) => { setInitialChatRoom(`dm:${h}`); setShowUserProfile(false); setShowChat(true); }}
+        />
       )}
     </div>
   )
