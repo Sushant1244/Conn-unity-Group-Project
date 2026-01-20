@@ -2,5 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  plugins: [react()]
+  plugins: [react()],
+  server: {
+    // allow Vite to pick the next free port automatically
+    strictPort: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true
+      },
+      '/socket.io': {
+        target: 'http://localhost:4000',
+        ws: true
+      }
+    }
+  }
 })
