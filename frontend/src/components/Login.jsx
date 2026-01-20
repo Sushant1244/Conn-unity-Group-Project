@@ -1,83 +1,53 @@
 import React, { useState } from 'react'
-import './Register.css'
+import './Login.css'
 
-export default function Register({ open, onClose, showNotification }){
-  const [username, setUsername] = useState('')
+export default function Login({ open, onSwitchToRegister, onAdminLogin, showNotification }){
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirm, setConfirm] = useState('')
-  const [agree, setAgree] = useState(false)
   const [error, setError] = useState('')
 
   if (!open) return null;
 
   function submit(){
     setError('')
-    if (!username.trim()) return setError('Username required')
     if (!email.includes('@')) return setError('Valid email required')
     if (password.length < 8) return setError('Password must be 8+ chars')
-    if (password !== confirm) return setError('Passwords must match')
-    if (!agree) return setError('You must agree to terms')
     
-    // Check if user already exists
+    // Check if user exists
     const usersRaw = localStorage.getItem('connunity_users') || '[]'
     const users = JSON.parse(usersRaw)
-    const existingUser = users.find(u => u.email === email)
+    const user = users.find(u => u.email === email)
     
-    if (existingUser) {
-      if (showNotification && showNotification.showError) {
-        showNotification.showError('Email already registered. Please login instead.')
-      }
-      return setError('Email already registered')
-    }
+    if (!user) return setError('User not found. Please register first.')
     
-    // Create new user
-    users.push({ id: 'u'+Date.now(), username, email })
-    localStorage.setItem('connunity_users', JSON.stringify(users))
+    // Store current user
+    localStorage.setItem('connunity_current_user', JSON.stringify(user))
     
     if (showNotification && showNotification.showSuccess) {
-      showNotification.showSuccess(`Account created successfully! Welcome, ${username}!`)
+      showNotification.showSuccess(`Welcome back, ${user.username}!`)
     }
     
     // Clear form
-    setUsername('')
     setEmail('')
     setPassword('')
-    setConfirm('')
-    setAgree(false)
-    
-    // Switch to login after a short delay
-    setTimeout(() => {
-      onClose && onClose()
-    }, 1500)
   }
 
   return (
-    <div className="register-root">
-      <div className="register-container">
-        <div className="register-icon-wrapper">
-          <div className="register-icon">
+    <div className="login-root">
+      <div className="login-container">
+        <div className="login-icon-wrapper">
+          <div className="login-icon">
             <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2l2 2h-4l2-2z" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
-        <h2 className="register-title">Join Connunity</h2>
-        <div className="register-subtitle">Create your account and start connecting!</div>
+        <h2 className="login-title">Welcome Back</h2>
+        <div className="login-subtitle">Login to your Connunity account</div>
 
-        <div className="register-card">
-          <div className="card-title">Create Account</div>
-          <div className="card-subtitle">Sign up to join our community</div>
-
-          <label className="form-label">Username</label>
-          <div className="input-with-icon">
-            <span className="input-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zM4 20c0-3.314 2.686-6 6-6h4c3.314 0 6 2.686 6 6" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="cooluser123" />
-          </div>
+        <div className="login-card">
+          <div className="card-title">Login</div>
+          <div className="card-subtitle">Sign in to your account</div>
 
           <label className="form-label">Email</label>
           <div className="input-with-icon">
@@ -101,28 +71,12 @@ export default function Register({ open, onClose, showNotification }){
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="********" />
           </div>
 
-          <label className="form-label">Confirm Password</label>
-          <div className="input-with-icon">
-            <span className="input-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="11" width="18" height="10" rx="2" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="********" />
-          </div>
-
-          <div className="checkbox-container">
-            <input type="checkbox" checked={agree} onChange={e=>setAgree(e.target.checked)} />
-            <div className="checkbox-label">I agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong></div>
-          </div>
-
           {error && <div className="error-message">{error}</div>}
 
           <div className="btn-container">
-            <button className="create-btn" onClick={submit} type="button">Create Account</button>
+            <button className="login-btn" onClick={submit} type="button">Login</button>
           </div>
-          
+
           {showNotification && (
             <div style={{ marginTop: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '8px' }}>
               <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>Test Notifications:</div>
@@ -154,10 +108,17 @@ export default function Register({ open, onClose, showNotification }){
               </div>
             </div>
           )}
-        </div>
 
-        <div className="login-link-container">
-          <a href="#" className="login-link">Already have an account? <strong>Login</strong></a>
+          <div className="login-footer">
+            <span>Don't have an account? </span>
+            <button className="link-btn" onClick={onSwitchToRegister}>Register</button>
+          </div>
+
+          {onAdminLogin && (
+            <div className="admin-login-section">
+              <button className="admin-btn" onClick={onAdminLogin}>Admin Login</button>
+            </div>
+          )}
         </div>
       </div>
     </div>
