@@ -3,6 +3,7 @@ const path = require('path')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const http = require('http')
+const { PORT, cors: corsCfg } = require('./config/config')
 
 const app = express()
 const server = http.createServer(app)
@@ -10,55 +11,37 @@ const { Server } = require('socket.io')
 const io = new Server(server, {
   cors: { origin: '*', methods: ['GET','POST'] }
 })
-const PORT = process.env.PORT || 4000
+// Port comes from config
 
-app.use(cors())
+app.use(cors(corsCfg))
 app.use(bodyParser.json())
 
-// Serve frontend static files
+// Serve frontend static files (optional when deployed together)
 app.use(express.static(path.join(__dirname, '..', 'frontend')))
 
-// Mock register endpoint
+// Health
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: Date.now() })
 })
 
-// Mock register endpoint
-app.post('/api/register', (req, res) => {
-  const { username, email, password } = req.body
-  if (!username || !email || !password) {
-    return res.status(400).json({ success: false, message: 'Missing fields' })
-  }
-  // In a real app you'd validate, hash password, save to DB
-  console.log('REGISTER', { username, email })
-  return res.json({ success: true, message: 'Registered (mock)' })
-})
+// Modular routes
+app.use('/api', require('./routes/auth'))
+app.use('/api', require('./routes/admin'))
+app.use('/api', require('./routes/users'))
+app.use('/api', require('./routes/communities'))
+app.use('/api', require('./routes/posts'))
+app.use('/api', require('./routes/dashboard'))
+// API 404 handler
+app.use(require('./middleware/notFound'))
+// Global error handler
+app.use(require('./middleware/errorHandler'))
 
-// Mock login endpoint
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body
-  if (!email || !password) return res.status(400).json({ success: false, message: 'Missing fields' })
-  // Accept any password for demo
-  console.log('LOGIN', { email })
-  return res.json({ success: true, token: 'mock-jwt-token' })
-})
-
-// Mock admin login with 2FA
-app.post('/api/admin-login', (req, res) => {
-  const { username, password, code } = req.body
-  if (!username || !password || !code) return res.status(400).json({ success: false, message: 'Missing fields' })
-  const normalized = String(code).toUpperCase()
-  // Accept both old numeric demo and the requested alphanumeric demo code
-  if (normalized !== '123456' && normalized !== '99390D') {
-    return res.status(401).json({ success: false, message: 'Invalid 2FA code (demo expects 123456 or 99390D)' })
-  }
-  console.log('ADMIN LOGIN', { username })
-  return res.json({ success: true, token: 'mock-admin-token' })
-})
-
-// Fallback - serve index.html for any other route (static SPA behavior)
+// Fallback - serve index.html for any other route (handle errors gracefully)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'))
+  const indexPath = path.join(__dirname, '..', 'frontend', 'index.html')
+  res.sendFile(indexPath, (err) => {
+    if (err) res.status(404).send('Not found')
+  })
 })
 
 // --- Realtime Chat (Socket.IO) ---
