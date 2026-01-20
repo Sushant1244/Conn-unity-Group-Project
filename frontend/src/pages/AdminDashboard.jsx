@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ShieldCheck, LayoutDashboard, Gavel, Users, Building2, FileText, BarChart3, Settings, UserCircle, MessageSquare, AlertTriangle } from 'lucide-react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
+import { ArrowLeft, ShieldCheck, LayoutDashboard, Gavel, Users, Building2, FileText, BarChart3, Settings, UserCircle, MessageSquare, AlertTriangle, Check, X, UserMinus, UserPlus, Crown, Eye, EyeOff, Trash2, Clipboard, KeyRound, Edit3, Camera } from 'lucide-react'
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend } from 'chart.js'
 import '../admin-dashboard.css'
 
@@ -9,16 +9,30 @@ export default function AdminDashboard() {
   const lineRef = useRef(null)
   const barRef = useRef(null)
   const pieRef = useRef(null)
+  const analyticsRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     try { return localStorage.getItem('connunity_admin_theme') || 'light' } catch { return 'light' }
   })
+  const [active, setActive] = useState('dashboard')
   const isDark = theme === 'dark'
+  const [profile, setProfile] = useState({
+    name: 'Admin User',
+    handle: '@admin',
+    email: 'admin@connunity.local',
+    role: 'admin',
+    bio: 'Responsible for keeping Conn-unity healthy and fun.',
+    avatarUrl: '',
+    apiKey: 'ak_live_' + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10),
+    twoFAEnabled: true
+  })
+  const [showApi, setShowApi] = useState(false)
 
   useEffect(() => {
     try { localStorage.setItem('connunity_admin_theme', theme) } catch {}
   }, [theme])
 
   useEffect(() => {
+    if (active !== 'dashboard') return
     if (!lineRef.current || !barRef.current || !pieRef.current) return
     try {
     // Line Chart: User Growth
@@ -85,7 +99,58 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('AdminDashboard charts error:', err)
     }
-  }, [])
+  }, [active])
+
+  useEffect(() => {
+    if (active !== 'analytics') return
+    if (!analyticsRef.current) return
+    try {
+      const ctx = analyticsRef.current.getContext('2d')
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets: [
+            { label: 'DAU', data: [12,14,13,16,18,19,21], borderColor: '#7dd3fc', backgroundColor: 'rgba(125,211,252,0.25)', fill: true, tension: 0.35 },
+            { label: 'New Users', data: [3,4,3,5,6,6,7], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.25)', fill: true, tension: 0.35 }
+          ]
+        },
+        options: { responsive: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { grid: { color: 'rgba(0,0,0,0.05)' } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } } } }
+      })
+      return () => chart.destroy()
+    } catch (e) { console.error('Analytics chart error:', e) }
+  }, [active])
+
+  const Tab = ({ id, icon: Icon, label }) => (
+    <li className={active === id ? 'active' : ''} onClick={() => setActive(id)} style={{ cursor: 'pointer' }}>
+      <Icon size={16}/> <span>{label}</span>
+    </li>
+  )
+
+  // Demo data for various panels
+  const [queue, setQueue] = useState([
+    { id: 1, community: 'c/technology', author: 'userA', reason: 'Spam links', status: 'pending' },
+    { id: 2, community: 'c/gaming', author: 'player99', reason: 'Toxic behavior', status: 'pending' },
+    { id: 3, community: 'c/nature', author: 'wanderer', reason: 'Off-topic', status: 'pending' }
+  ])
+  const [users, setUsers] = useState([
+    { id: 1, name: 'Jane Doe', handle: '@jane', role: 'member', banned: false },
+    { id: 2, name: 'Mark Lee', handle: '@mark', role: 'moderator', banned: false },
+    { id: 3, name: 'Sam Green', handle: '@sam', role: 'member', banned: true }
+  ])
+  const [uQuery, setUQuery] = useState('')
+  const filteredUsers = useMemo(() => users.filter(u => (u.name+u.handle).toLowerCase().includes(uQuery.toLowerCase())), [users, uQuery])
+  const [communities, setCommunities] = useState([
+    { id: 1, name: 'c/technology', members: '2.5M', visible: true },
+    { id: 2, name: 'c/gaming', members: '1.6M', visible: true },
+    { id: 3, name: 'c/nature', members: '1.2M', visible: false }
+  ])
+  const [newComm, setNewComm] = useState('')
+  const [reports, setReports] = useState([
+    { id: 10, type: 'Abuse', target: 'post #8421', community: 'c/technology', status: 'open' },
+    { id: 11, type: 'Spam', target: 'comment #199', community: 'c/gaming', status: 'open' },
+    { id: 12, type: 'Harassment', target: 'user @sam', community: 'c/nature', status: 'resolved' }
+  ])
 
   return (
     <div className="admin-root" data-theme={theme}>
@@ -125,17 +190,19 @@ export default function AdminDashboard() {
 
       <nav className="admin-nav">
         <ul className="nav-list">
-          <li className="active"><LayoutDashboard size={16}/> <span>Dashboard</span></li>
-          <li><Gavel size={16}/> <span>Moderation</span></li>
-          <li><Users size={16}/> <span>Users</span></li>
-          <li><Building2 size={16}/> <span>Communities</span></li>
-          <li><FileText size={16}/> <span>Reports</span></li>
-          <li><BarChart3 size={16}/> <span>Analytics</span></li>
-          <li><Settings size={16}/> <span>Settings</span></li>
+          <Tab id="dashboard" icon={LayoutDashboard} label="Dashboard" />
+          <Tab id="moderation" icon={Gavel} label="Moderation" />
+          <Tab id="users" icon={Users} label="Users" />
+          <Tab id="communities" icon={Building2} label="Communities" />
+          <Tab id="reports" icon={FileText} label="Reports" />
+          <Tab id="analytics" icon={BarChart3} label="Analytics" />
+          <Tab id="settings" icon={Settings} label="Settings" />
+          <Tab id="profile" icon={UserCircle} label="Profile" />
         </ul>
       </nav>
 
       <main className="admin-main">
+        {active === 'dashboard' && <>
         {/* Stats row */}
         <section className="stats-row">
           <div className="stat-card">
@@ -201,6 +268,226 @@ export default function AdminDashboard() {
             </ul>
           </div>
         </section>
+        </>}
+
+        {active === 'moderation' && (
+          <section className="card">
+            <div className="card-title">Moderation Queue</div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>ID</th><th>Community</th><th>Author</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {queue.map(item => (
+                    <tr key={item.id}>
+                      <td>#{item.id}</td>
+                      <td>{item.community}</td>
+                      <td>{item.author}</td>
+                      <td>{item.reason}</td>
+                      <td><span className={`badge ${item.status === 'pending' ? 'warning' : 'success'}`}>{item.status}</span></td>
+                      <td className="row-actions">
+                        <button className="btn-sm success" onClick={() => setQueue(q => q.map(i => i.id===item.id?{...i,status:'approved'}:i))}><Check size={14}/> Approve</button>
+                        <button className="btn-sm danger" onClick={() => setQueue(q => q.filter(i => i.id!==item.id))}><X size={14}/> Remove</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {active === 'users' && (
+          <section className="card">
+            <div className="card-title">Users</div>
+            <div className="toolbar">
+              <input value={uQuery} onChange={e=>setUQuery(e.target.value)} className="input" placeholder="Search users" />
+            </div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>Name</th><th>Handle</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {filteredUsers.map(u => (
+                    <tr key={u.id}>
+                      <td>{u.name}</td>
+                      <td>{u.handle}</td>
+                      <td>{u.role === 'moderator' ? <span className="badge info">moderator</span> : 'member'}</td>
+                      <td>{u.banned ? <span className="badge danger">banned</span> : <span className="badge success">active</span>}</td>
+                      <td className="row-actions">
+                        <button className="btn-sm" onClick={()=>setUsers(list=>list.map(x=>x.id===u.id?{...x, role: x.role==='moderator'?'member':'moderator'}:x))}><Crown size={14}/> {u.role==='moderator'?'Remove Mod':'Make Mod'}</button>
+                        {u.banned
+                          ? <button className="btn-sm success" onClick={()=>setUsers(list=>list.map(x=>x.id===u.id?{...x,banned:false}:x))}><UserPlus size={14}/> Unban</button>
+                          : <button className="btn-sm danger" onClick={()=>setUsers(list=>list.map(x=>x.id===u.id?{...x,banned:true}:x))}><UserMinus size={14}/> Ban</button>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {active === 'communities' && (
+          <section className="card">
+            <div className="card-title">Communities</div>
+            <div className="toolbar">
+              <input value={newComm} onChange={e=>setNewComm(e.target.value)} className="input" placeholder="Create new community (e.g., c/design)" />
+              <button className="btn-sm success" disabled={!newComm.trim()} onClick={()=>{ setCommunities(prev=>[{ id: Date.now(), name:newComm.trim(), members:'0', visible:true }, ...prev]); setNewComm('') }}>Create</button>
+            </div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>Name</th><th>Members</th><th>Visibility</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {communities.map(c => (
+                    <tr key={c.id}>
+                      <td>{c.name}</td>
+                      <td>{c.members}</td>
+                      <td>{c.visible ? <span className="badge success">public</span> : <span className="badge warning">hidden</span>}</td>
+                      <td className="row-actions">
+                        <button className="btn-sm" onClick={()=>setCommunities(list=>list.map(x=>x.id===c.id?{...x,visible:!x.visible}:x))}>{c.visible? <EyeOff size={14}/> : <Eye size={14}/> } {c.visible? 'Hide':'Show'}</button>
+                        <button className="btn-sm danger" onClick={()=>setCommunities(list=>list.filter(x=>x.id!==c.id))}><Trash2 size={14}/> Remove</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {active === 'reports' && (
+          <section className="card">
+            <div className="card-title">Reports</div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>ID</th><th>Type</th><th>Target</th><th>Community</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  {reports.map(r => (
+                    <tr key={r.id}>
+                      <td>#{r.id}</td>
+                      <td>{r.type}</td>
+                      <td>{r.target}</td>
+                      <td>{r.community}</td>
+                      <td>{r.status === 'open' ? <span className="badge warning">open</span> : <span className="badge success">resolved</span>}</td>
+                      <td className="row-actions">
+                        {r.status === 'open' && <button className="btn-sm success" onClick={()=>setReports(list=>list.map(x=>x.id===r.id?{...x,status:'resolved'}:x))}><Check size={14}/> Resolve</button>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {active === 'analytics' && (
+          <section className="charts-row">
+            <div className="card">
+              <div className="card-title">Weekly Engagement</div>
+              <canvas ref={analyticsRef} width={720} height={220}></canvas>
+            </div>
+            <div className="card">
+              <div className="card-title">Highlights</div>
+              <ul className="activity-list">
+                <li><span className="check">✓</span> DAU up <strong>+8%</strong> WoW</li>
+                <li><span className="check">✓</span> New user activation <strong>42%</strong></li>
+                <li><span className="check">✓</span> Retention D7 <strong>28%</strong></li>
+              </ul>
+            </div>
+          </section>
+        )}
+
+        {active === 'settings' && (
+          <section className="card">
+            <div className="card-title">Settings</div>
+            <div className="toolbar">
+              <button className="btn-sm" onClick={()=>setTheme(t=> t==='light'?'dark':'light')}>{theme==='light'?'Enable Dark Theme':'Disable Dark Theme'}</button>
+              <button className="btn-sm danger" onClick={()=>{ localStorage.removeItem('connunity_admin_token'); window.location.href = '/auth.html#admin' }}>Logout Admin</button>
+              <button className="btn-sm" onClick={()=>{ try { localStorage.setItem('connunity_admin_theme','light'); setTheme('light') } catch {} }}>Reset Theme</button>
+            </div>
+            <div className="muted">These settings are demo-only and affect the visuals of the admin panel.</div>
+          </section>
+        )}
+
+        {active === 'profile' && (
+          <section className="card">
+            <div className="card-title">Admin Profile</div>
+            <div className="profile-grid">
+              <div>
+                <div className="avatar-lg">
+                  {profile.avatarUrl ? <img src={profile.avatarUrl} alt="avatar"/> : <UserCircle size={48}/>} 
+                  <label className="avatar-upload" title="Upload avatar">
+                    <Camera size={16}/>
+                    <input type="file" accept="image/*" onChange={(e)=>{
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      const url = URL.createObjectURL(f);
+                      setProfile(p=>({...p, avatarUrl:url}))
+                    }} />
+                  </label>
+                </div>
+                <div className="muted" style={{marginTop:8}}>PNG/JPG up to 2MB</div>
+              </div>
+              <div>
+                <div className="form-grid">
+                  <label>
+                    <span>Name</span>
+                    <input className="input" value={profile.name} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} />
+                  </label>
+                  <label>
+                    <span>Handle</span>
+                    <input className="input" value={profile.handle} onChange={e=>setProfile(p=>({...p,handle:e.target.value}))} />
+                  </label>
+                  <label>
+                    <span>Email</span>
+                    <input className="input" type="email" value={profile.email} onChange={e=>setProfile(p=>({...p,email:e.target.value}))} />
+                  </label>
+                  <label className="span-2">
+                    <span>Bio</span>
+                    <textarea className="input" rows={3} value={profile.bio} onChange={e=>setProfile(p=>({...p,bio:e.target.value}))} />
+                  </label>
+                </div>
+                <div className="toolbar">
+                  <button className="btn-sm"><Edit3 size={14}/> Save Changes</button>
+                  <span className="badge info">Role: {profile.role}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="profile-panels">
+              <div className="panel">
+                <div className="panel-title"><KeyRound size={16}/> API Key</div>
+                <div className="code-field">
+                  <span>{showApi ? profile.apiKey : '••••••••••••••••••••••••••••'}</span>
+                </div>
+                <div className="toolbar">
+                  <button className="btn-sm" onClick={()=>setShowApi(s=>!s)}>{showApi?'Hide':'Reveal'}</button>
+                  <button className="btn-sm" onClick={()=>{ navigator.clipboard?.writeText(profile.apiKey) }}><Clipboard size={14}/> Copy</button>
+                  <button className="btn-sm success" onClick={()=>setProfile(p=>({...p, apiKey:'ak_live_' + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10)}))}>Regenerate</button>
+                  <button className="btn-sm" onClick={()=>{
+                    const blob = new Blob([JSON.stringify(profile,null,2)],{type:'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = 'admin-profile.json'; a.click(); URL.revokeObjectURL(url);
+                  }}>Download JSON</button>
+                </div>
+              </div>
+              <div className="panel">
+                <div className="panel-title">Security</div>
+                <div className="switch-row">
+                  <label className="switch">
+                    <input type="checkbox" checked={profile.twoFAEnabled} onChange={e=>setProfile(p=>({...p,twoFAEnabled:e.target.checked}))} />
+                    <span className="slider"></span>
+                  </label>
+                  <span>Two‑Factor Authentication {profile.twoFAEnabled? '(enabled)':'(disabled)'} </span>
+                </div>
+                <ul className="activity-list" style={{marginTop:10}}>
+                  <li><span className="check">✓</span> Last login <strong>today, 09:42</strong> from macOS</li>
+                  <li><span className="check">✓</span> API key used <strong>2 times</strong> this week</li>
+                  <li><span className="check">✓</span> Theme set to <strong>{theme}</strong></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )
