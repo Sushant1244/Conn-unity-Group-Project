@@ -153,3 +153,25 @@ Design inspired by modern SaaS landing pages with a focus on:
 ---
 
 Built with ❤️ for the Conn-Unity communit
+  
+## Dev servers (frontend + backend)
+
+To run the mock backend and serve the frontend together:
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+Open http://localhost:4000 — landing page will load and header buttons link to the auth demo. The backend also exposes mock API endpoints (`/api/register`, `/api/login`, `/api/admin-login`).
+
+Alternatively run the frontend Vite dev server for HMR:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173/auth.html#login for the auth demo.
