@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #3b1d5a, #6d3bbf);
+      color: #fff;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      opacity: 0.8;
+      cursor: pointer;
+    }
+
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .shield {
+      width: 70px;
+      height: 70px;
+      background: #ec4899;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+    }
+
+    .shield span {
+      font-size: 34px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.75;
+    }
+
+    .restricted {
+      display: inline-block;
+      margin: 12px 0 25px;
+      background: #f97316;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #3a2b70, #1e1b4b);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: left;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 13px;
+      opacity: 0.75;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      margin-bottom: 18px;
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .hint {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(90deg, #fb7185, #f43f5e);
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .recovery {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="back-link">← Back to User Login</div>
+
+  <div class="container">
+    <div class="shield">
+      <span>⛔</span>
+    </div>
+
+    <h1>Admin Portal</h1>
+    <div class="subtitle">Secure administrative access</div>
+    <div class="restricted">⚠ Restricted Access</div>
+
+    <div class="card">
+      <h2>Administrator Login</h2>
+      <p>Enter your admin credentials to access the control panel</p>
+
+      <label>Admin Username</label>
+      <input type="text" placeholder="Enter username" />
+
+      <label>Admin Password</label>
+      <input type="password" placeholder="Enter password" />
+
+      <label>Security Code (2FA)</label>
+      <input type="text" placeholder="6-digit code" />
+      <div class="hint">Enter the 6-digit code from your authenticator app</div>
+
+      <button>Access Admin Panel</button>
+      <div class="recovery">Request access recovery</div>
+    </div>
+  </div>
+
+</body>
+</html>

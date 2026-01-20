@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: #ffffff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Diagonal Shape */
+    .diagonal {
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 140%;
+      height: 70%;
+      background: #bfc9ff;
+      transform: rotate(-35deg);
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
+
+    .signup {
+      width: 360px;
+      text-align: center;
+    }
+
+    .signup h1 {
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 48px;
+      color: #000;
+    }
+
+    .field {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: #6b6b6b;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      border: none;
+      border-bottom: 2px solid #3a3a3a;
+      font-size: 15px;
+      padding: 6px 2px;
+      outline: none;
+      background: transparent;
+    }
+
+    .field input:focus {
+      border-color: #8a97ff;
+    }
+
+    .btn {
+      margin-top: 16px;
+      padding: 12px 44px;
+      border-radius: 12px;
+      border: none;
+      background: #cfd6ff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #000;
+    }
+
+    .btn:hover {
+      background: #b9c3ff;
+    }
+
+    @media (max-width: 600px) {
+      .signup {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="diagonal"></div>
+
+  <div class="wrapper">
+    <div class="signup">
+      <h1>Sign Up</h1>
+
+      <div class="field">
+        <label>Username</label>
+        <input type="text" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" />
+      </div>
+
+      <button class="btn">Sign Up</button>
+    </div>
+  </div>
+
+</body>
+</html>

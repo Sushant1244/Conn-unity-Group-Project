@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Community Topic Selector</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+body{margin:0;background:#f2f4f7;padding:20px}
+.container{max-width:900px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center}
+.header h2{font-size:15px;font-weight:500;margin:0}
+.close{cursor:pointer;font-size:18px}
+.search{margin:15px 0}
+.search input{width:100%;padding:10px 14px;border-radius:20px;border:none;background:#e9f1f8;font-size:14px;outline:none}
+.section{margin-bottom:20px}
+.section h3{font-size:14px;margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:6px 12px;border-radius:20px;background:#e6eef6;font-size:13px;cursor:pointer;user-select:none}
+.tag.selected{background:#cfe2ff;color:#084298;font-weight:500}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.actions button{padding:8px 20px;border-radius:20px;border:none;font-size:14px;cursor:pointer}
+.cancel{background:#e9ecef}
+.next{background:#0d6efd;color:#fff}
+.next:disabled{background:#9bbcff;cursor:not-allowed}
+.counter{font-size:13px;color:#555}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>Add up to 2 topics to help interested community find your community.</h2>
+    <div class="close">✕</div>
+  </div>
+
+  <div class="search">
+    <input type="text" id="search" placeholder="🔍 Filter topics" />
+  </div>
+
+  <!-- ALL TOPICS -->
+  <div id="topics">
+    <div class="section"><h3>🎌 Anime & Cosplay</h3><div class="tags"><div class="tag">Anime & Manga</div></div></div>
+    <div class="section"><h3>🎨 Art</h3><div class="tags"><div class="tag">Performing Arts</div><div class="tag">Architecture</div><div class="tag">Design</div><div class="tag">Art</div><div class="tag">Filmmaking</div><div class="tag">Photography</div></div></div>
+    <div class="section"><h3>💼 Business & Finance</h3><div class="tags"><div class="tag">Personal Finance</div><div class="tag">Crypto</div><div class="tag">Economics</div><div class="tag">Business News</div><div class="tag">Real Estate</div><div class="tag">Startups</div></div></div>
+    <div class="section"><h3>🧸 Collectibles & Hobbies</h3><div class="tags"><div class="tag">Model Building</div><div class="tag">Collectibles</div><div class="tag">Other Hobbies</div><div class="tag">Toys</div></div></div>
+    <div class="section"><h3>🎓 Education & Career</h3><div class="tags"><div class="tag">Studying</div><div class="tag">Education</div><div class="tag">Career</div></div></div>
+    <div class="section"><h3>💅 Fashion & Beauty</h3><div class="tags"><div class="tag">Makeup</div><div class="tag">Fashion</div><div class="tag">Skincare</div><div class="tag">Watches</div></div></div>
+    <div class="section"><h3>🍔 Food & Drinks</h3><div class="tags"><div class="tag">Food & Recipes</div><div class="tag">Baking</div><div class="tag">Vegetarian</div></div></div>
+    <div class="section"><h3>🎮 Games</h3><div class="tags"><div class="tag">Action Games</div><div class="tag">RPG</div><div class="tag">Strategy Games</div><div class="tag">Mobile Games</div></div></div>
+    <div class="section"><h3>❤️ Health</h3><div class="tags"><div class="tag">Mental Health</div><div class="tag">Medical Health</div></div></div>
+    <div class="section"><h3>⚖ Humanities & Law</h3><div class="tags"><div class="tag">Law</div><div class="tag">History</div><div class="tag">Languages</div></div></div>
+    <div class="section"><h3>📰 News & Politics</h3><div class="tags"><div class="tag">News</div><div class="tag">Politics</div><div class="tag">Activism</div></div></div>
+    <div class="section"><h3>📚 Reading & Writing</h3><div class="tags"><div class="tag">Books</div><div class="tag">Writing</div><div class="tag">Comics</div></div></div>
+    <div class="section"><h3>🔬 Science</h3><div class="tags"><div class="tag">Biology</div><div class="tag">Physics</div><div class="tag">Mathematics</div><div class="tag">Chemistry</div><div class="tag">Data Science</div></div></div>
+    <div class="section"><h3>💻 Technology</h3><div class="tags"><div class="tag">Programming</div><div class="tag">AI & ML</div><div class="tag">Software</div><div class="tag">3D Printing</div></div></div>
+    <div class="section"><h3>🧘 Wellness</h3><div class="tags"><div class="tag">Fitness</div><div class="tag">Diet & Nutrition</div><div class="tag">Weight Loss</div></div></div>
+  </div>
+
+  <div class="footer">
+    <div class="counter" id="counter">0 / 2 selected</div>
+    <div class="actions">
+      <button class="cancel">Cancel</button>
+      <button class="next" id="nextBtn" disabled>Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tags=document.querySelectorAll('.tag');
+const search=document.getElementById('search');
+const counter=document.getElementById('counter');
+const nextBtn=document.getElementById('nextBtn');
+
+function update(){
+  const selected=document.querySelectorAll('.tag.selected').length;
+  counter.textContent=`${selected} / 2 selected`;
+  nextBtn.disabled=selected===0||selected>2;
+}
+
+tags.forEach(t=>t.onclick=()=>{
+  if(!t.classList.contains('selected') && document.querySelectorAll('.tag.selected').length>=2) return;
+  t.classList.toggle('selected');
+  update();
+});
+
+search.oninput=()=>{
+  const v=search.value.toLowerCase();
+  tags.forEach(t=>t.style.display=t.textContent.toLowerCase().includes(v)?'inline-block':'none');
+};
+</script>
+</body>
+</html>
