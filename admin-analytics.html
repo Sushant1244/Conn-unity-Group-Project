@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6f8;
+}
+
+.header {
+  background: linear-gradient(90deg, #4f46e5, #9333ea);
+  color: white;
+  padding: 16px 30px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.container {
+  padding: 25px;
+}
+
+.title {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filters select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* KPI Cards */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.kpi {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.kpi h3 {
+  margin: 0;
+  color: #555;
+}
+
+.kpi h1 {
+  margin: 10px 0;
+}
+
+.kpi span {
+  color: green;
+  font-size: 13px;
+}
+
+/* Charts */
+.charts {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.chart-box {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+}
+
+/* Bottom Charts */
+.bottom {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div>📊 Admin Analytics</div>
+  <div>Welcome, admin</div>
+</div>
+
+<div class="container">
+
+<h2 class="title">Analytics Overview</h2>
+
+<!-- Filters -->
+<div class="filters">
+  <select>
+    <option>Last 7 Days</option>
+    <option>Last 30 Days</option>
+    <option>Last Year</option>
+  </select>
+  <select>
+    <option>All Platforms</option>
+    <option>Web</option>
+    <option>Mobile</option>
+  </select>
+</div>
+
+<!-- KPIs -->
+<div class="kpis">
+  <div class="kpi">
+    <h3>Total Visits</h3>
+    <h1>128,430</h1>
+    <span>▲ 12.3%</span>
+  </div>
+  <div class="kpi">
+    <h3>Active Users</h3>
+    <h1>45,290</h1>
+    <span>▲ 8.4%</span>
+  </div>
+  <div class="kpi">
+    <h3>Engagement Rate</h3>
+    <h1>62%</h1>
+    <span>▲ 5.1%</span>
+  </div>
+  <div class="kpi">
+    <h3>Bounce Rate</h3>
+    <h1>28%</h1>
+    <span>▼ 3.2%</span>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="charts">
+  <div class="chart-box">
+    <h3>Traffic Growth</h3>
+    <canvas id="trafficChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h3>User Demographics</h3>
+    <canvas id="demographicChart"></canvas>
+  </div>
+</div>
+
+<!-- Bottom Charts -->
+<div class="bottom">
+  <div class="chart-box">
+    <h3>Top Content Categories</h3>
+    <canvas id="contentChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h3>Platform Usage</h3>
+    <canvas id="platformChart"></canvas>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Traffic Line Chart
+new Chart(document.getElementById("trafficChart"), {
+  type: "line",
+  data: {
+    labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    datasets: [{
+      label: "Visits",
+      data: [12000,15000,14000,18000,20000,17000,22000],
+      borderColor: "#4f46e5",
+      fill: false
+    }]
+  }
+});
+
+// Demographics Pie
+new Chart(document.getElementById("demographicChart"), {
+  type: "pie",
+  data: {
+    labels: ["18-24","25-34","35-44","45+"],
+    datasets: [{
+      data: [35,40,15,10],
+      backgroundColor: ["#6366f1","#9333ea","#22c55e","#f97316"]
+    }]
+  }
+});
+
+// Content Bar
+new Chart(document.getElementById("contentChart"), {
+  type: "bar",
+  data: {
+    labels: ["Tech","Gaming","Food","Health","Travel"],
+    datasets: [{
+      label: "Views",
+      data: [42000,36000,28000,19000,24000],
+      backgroundColor: "#4f46e5"
+    }]
+  }
+});
+
+// Platform Doughnut
+new Chart(document.getElementById("platformChart"), {
+  type: "doughnut",
+  data: {
+    labels: ["Web","Android","iOS"],
+    datasets: [{
+      data: [55,30,15],
+      backgroundColor: ["#6366f1","#22c55e","#f97316"]
+    }]
+  }
+});
+</script>
+
+</body>
+</html>
