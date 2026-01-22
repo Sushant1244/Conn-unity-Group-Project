@@ -147,13 +147,13 @@
   text-align: center;
   margin-top: 20px;
   font-size: 14px;
-  color: #6b7280;
+  color: #111827;
 }
 
 .link-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: #111827;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -161,7 +161,7 @@
 }
 
 .link-btn:hover {
-  color: #764ba2;
+  color: #374151;
 }
 
 .admin-login-section {
