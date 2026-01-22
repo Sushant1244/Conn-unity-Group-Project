@@ -78,14 +78,14 @@ export default function Login({ open, onSwitchToRegister, onAdminLogin, onForgot
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '12px' }}>
-            <button className="link-btn" onClick={onForgotPassword} style={{ fontSize: '14px', color: '#3b82f6' }}>
+            <button className="link-btn" onClick={onForgotPassword} style={{ fontSize: '14px' }}>
               Forgot Password?
             </button>
           </div>
 
           <div className="login-footer">
             <span>Don't have an account? </span>
-            <button className="link-btn" onClick={onSwitchToRegister}>Register</button>
+            <button className="link-btn" onClick={onSwitchToRegister} style={{ color: '#000000', fontWeight: '700' }}>Register</button>
           </div>
         </div>
       </div>
