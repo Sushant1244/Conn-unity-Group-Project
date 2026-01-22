@@ -413,7 +413,30 @@ button:hover::before {
 
 /* Responsive */
 @media (max-width: 768px) {
-  background-color: #1976D2;
+  .admin-panel {
+    padding: 15px;
+  }
+
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .admin-controls {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 10px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
 }
 
 /* Modal */
