@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #3f37ff, #a100ff);
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Login Box */
+.login-box {
+  background: #fff;
+  width: 380px;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+/* Header */
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-box p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* Input */
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #7b2cff;
+}
+
+/* Show password */
+.show-pass {
+  font-size: 13px;
+  margin-top: 6px;
+  cursor: pointer;
+  color: #7b2cff;
+}
+
+/* Button */
+button {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(90deg, #3f37ff, #a100ff);
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 15px;
+  opacity: 0.6;
+}
+
+button.active {
+  opacity: 1;
+}
+
+.error {
+  color: red;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+  <h2>Admin Login</h2>
+  <p>Access the admin dashboard</p>
+
+  <div class="input-group">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="admin">
+  </div>
+
+  <div class="input-group">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••">
+    <div class="show-pass" onclick="togglePassword()">Show Password</div>
+  </div>
+
+  <button id="loginBtn" onclick="login()">Login</button>
+  <div class="error" id="errorMsg"></div>
+</div>
+
+<script>
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const errorMsg = document.getElementById("errorMsg");
+
+function togglePassword() {
+  password.type = password.type === "password" ? "text" : "password";
+}
+
+function validate() {
+  if (username.value && password.value) {
+    loginBtn.classList.add("active");
+    loginBtn.disabled = false;
+  } else {
+    loginBtn.classList.remove("active");
+    loginBtn.disabled = true;
+  }
+}
+
+username.addEventListener("input", validate);
+password.addEventListener("input", validate);
+
+function login() {
+  errorMsg.textContent = "";
+
+  // TEMP demo credentials
+  if (username.value === "admin" && password.value === "admin123") {
+    alert("Login successful!");
+    // window.location.href = "admin-dashboard.html";
+  } else {
+    errorMsg.textContent = "Invalid admin credentials";
+  }
+}
+</script>
+
+</body>
+</html>
