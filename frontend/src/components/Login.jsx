@@ -87,12 +87,6 @@ export default function Login({ open, onSwitchToRegister, onAdminLogin, onForgot
             <span>Don't have an account? </span>
             <button className="link-btn" onClick={onSwitchToRegister}>Register</button>
           </div>
-
-          {onAdminLogin && (
-            <div className="admin-login-section">
-              <button className="admin-btn" onClick={onAdminLogin}>Admin Login</button>
-            </div>
-          )}
         </div>
       </div>
     </div>
