@@ -278,3 +278,81 @@
 .chat-input textarea:focus { box-shadow: 0 0 0 2px rgba(37,99,235,0.22); }
 .chat-input .btn-primary { width:auto; padding:12px 18px; flex:0 0 auto; }
 .chat-input textarea::placeholder { color:#9ca3af; }
+
+/* --- Dark Theme (User Dashboard) --- */
+.dashboard-root[data-theme="dark"] { background:#0f1115; }
+.dashboard-root[data-theme="dark"] .card,
+.dashboard-root[data-theme="dark"] .col-mid .post-card,
+.dashboard-root[data-theme="dark"] .notif-dropdown { background:#12151b; border-color: rgba(255,255,255,0.08); box-shadow:none; }
+.dashboard-root[data-theme="dark"] .brand-text { color:#e5e7eb; text-shadow:none; }
+.dashboard-root[data-theme="dark"] .poll-label,
+.dashboard-root[data-theme="dark"] .profile-h1,
+.dashboard-root[data-theme="dark"] .comm-name,
+.dashboard-root[data-theme="dark"] .post-title { color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .search-input { background:#0f1115; border:1px solid rgba(255,255,255,0.08); box-shadow:none; color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .search-input::placeholder { color:#9ca3af; }
+.dashboard-root[data-theme="dark"] .poll-card .poll-option { background:#181c24; border-color:rgba(255,255,255,0.08); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .poll-card .poll-option:hover { background:#1a1f28; border-color:rgba(255,255,255,0.12); }
+.dashboard-root[data-theme="dark"] .poll-pct,
+.dashboard-root[data-theme="dark"] .profile-sub,
+.dashboard-root[data-theme="dark"] .about-desc,
+.dashboard-root[data-theme="dark"] .stat-row > div:first-child,
+.dashboard-root[data-theme="dark"] .post-body,
+.dashboard-root[data-theme="dark"] .time { color:#9ca3af; }
+.dashboard-root[data-theme="dark"] .stat-num { color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .post-media { background:linear-gradient(180deg,#151820,#12151b); }
+.dashboard-root[data-theme="dark"] .pill { background:#1a1f28; border-color:rgba(255,255,255,0.08); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .pill:hover { background:#1d222b; border-color:rgba(255,255,255,0.12); }
+.dashboard-root[data-theme="dark"] .notif-item:hover { background:#151820; }
+.dashboard-root[data-theme="dark"] .notif-item.unread { background:#161b24; }
+.dashboard-root[data-theme="dark"] .site-footer { background:#0b0d11; border-top-color:rgba(255,255,255,0.06); }
+
+/* High-contrast fixes for dark mode: buttons, inputs, badges */
+.dashboard-root[data-theme="dark"] .btn-secondary,
+.dashboard-root[data-theme="dark"] .pop-join,
+.dashboard-root[data-theme="dark"] .small-btn { background:#1a1f28; border:1.5px solid rgba(255,255,255,0.12); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .btn-secondary:hover,
+.dashboard-root[data-theme="dark"] .pop-join:hover,
+.dashboard-root[data-theme="dark"] .small-btn:hover { background:#222733; border-color:rgba(255,255,255,0.18); }
+
+.dashboard-root[data-theme="dark"] .comment-item { background:#171b22; border-color:rgba(255,255,255,0.08); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .chat-room { background:#171b22; border-color:rgba(255,255,255,0.10); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .chat-room:hover { background:#1b2028; }
+.dashboard-root[data-theme="dark"] .chat-input { background:#12151b; border-top-color:rgba(255,255,255,0.08); }
+.dashboard-root[data-theme="dark"] .chat-input textarea { background:#0f1217; border-color:rgba(255,255,255,0.12); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .chat-input textarea::placeholder { color:#b0b6c3; }
+
+.dashboard-root[data-theme="dark"] .icon-btn,
+.dashboard-root[data-theme="dark"] .icon-btn-sm { color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .tag { background:#1a1f28; border-color:rgba(255,255,255,0.12); color:#e5e7eb; }
+.dashboard-root[data-theme="dark"] .category-tag { background:#1a1f28; border-color:rgba(255,255,255,0.12); color:#cfe7ff; }
+.dashboard-root[data-theme="dark"] .category-tag.game { background:#132019; border-color:#1f4130; color:#9be7c2; }
+.dashboard-root[data-theme="dark"] .category-tag.news { background:#131a24; border-color:#1f3354; color:#a8c7ff; }
+
+/* Specific elements called out as low-contrast in dark mode */
+.dashboard-root[data-theme="dark"] .logout-btn {
+	background:#222733;
+	border:1.5px solid rgba(255,255,255,0.28);
+	color:#ffffff !important;
+	box-shadow:none;
+}
+.dashboard-root[data-theme="dark"] .logout-btn:hover { background:#2a3040; border-color:rgba(255,255,255,0.34); }
+
+.dashboard-root[data-theme="dark"] .pop-rank {
+	background:#1a1f28;
+	border:1px solid rgba(255,255,255,0.14);
+	color:#e5e7eb !important;
+}
+.dashboard-root[data-theme="dark"] .pop-item { border-bottom-color:rgba(255,255,255,0.06); }
+
+/* Daily Challenges: ensure badges and progress are readable in dark */
+.dashboard-root[data-theme="dark"] .challenge-item { background:#12151b; border-color:rgba(255,255,255,0.08); }
+.dashboard-root[data-theme="dark"] .challenge-badge.easy { background:#17493a; color:#ffffff !important; }
+.dashboard-root[data-theme="dark"] .challenge-badge.medium { background:#3a2b10; color:#ffffff !important; }
+.dashboard-root[data-theme="dark"] .daily-card .progress { background:#1e2430; }
+.dashboard-root[data-theme="dark"] .daily-card .progress-fill { background:#3b82f6; }
+
+/* Force all text to white in dark mode for readability */
+.dashboard-root[data-theme="dark"],
+.dashboard-root[data-theme="dark"] * { color:#ffffff !important; }
+.dashboard-root[data-theme="dark"] .search-input::placeholder { color:#e5e7eb !important; }
