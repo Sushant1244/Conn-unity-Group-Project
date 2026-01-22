@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './Login.css'
 
-export default function Login({ open, onSwitchToRegister, onAdminLogin, showNotification }){
+export default function Login({ open, onSwitchToRegister, onAdminLogin, onForgotPassword, showNotification }){
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -77,37 +77,11 @@ export default function Login({ open, onSwitchToRegister, onAdminLogin, showNoti
             <button className="login-btn" onClick={submit} type="button">Login</button>
           </div>
 
-          {showNotification && (
-            <div style={{ marginTop: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '8px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>Test Notifications:</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button 
-                  onClick={() => showNotification.showSuccess('Success notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Success
-                </button>
-                <button 
-                  onClick={() => showNotification.showError('Error notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Error
-                </button>
-                <button 
-                  onClick={() => showNotification.showWarning('Warning notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Warning
-                </button>
-                <button 
-                  onClick={() => showNotification.showInfo('Info notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Info
-                </button>
-              </div>
-            </div>
-          )}
+          <div style={{ textAlign: 'center', marginTop: '12px' }}>
+            <button className="link-btn" onClick={onForgotPassword} style={{ fontSize: '14px', color: '#3b82f6' }}>
+              Forgot Password?
+            </button>
+          </div>
 
           <div className="login-footer">
             <span>Don't have an account? </span>

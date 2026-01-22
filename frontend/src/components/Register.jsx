@@ -122,42 +122,17 @@ export default function Register({ open, onClose, showNotification }){
           <div className="btn-container">
             <button className="create-btn" onClick={submit} type="button">Create Account</button>
           </div>
-          
-          {showNotification && (
-            <div style={{ marginTop: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '8px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>Test Notifications:</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button 
-                  onClick={() => showNotification.showSuccess('Success notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Success
-                </button>
-                <button 
-                  onClick={() => showNotification.showError('Error notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Error
-                </button>
-                <button 
-                  onClick={() => showNotification.showWarning('Warning notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Warning
-                </button>
-                <button 
-                  onClick={() => showNotification.showInfo('Info notification!')} 
-                  style={{ padding: '4px 8px', fontSize: '11px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Info
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
-        <div className="login-link-container">
-          <a href="#" className="login-link">Already have an account? <strong>Login</strong></a>
+          <div className="divider">
+            <span>or</span>
+          </div>
+
+          <button className="login-btn" onClick={onClose} type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Already have an account? Login
+          </button>
         </div>
       </div>
     </div>
