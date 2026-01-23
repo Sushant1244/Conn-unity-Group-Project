@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Share Post</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6fb;
+  padding: 40px;
+}
+
+/* Share Button */
+.share-btn {
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: none;
+  background: #6c4dff;
+  color: white;
+  cursor: pointer;
+}
+
+/* Modal Overlay */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Box */
+.modal-box {
+  background: white;
+  width: 360px;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.close {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.share-options {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.share-option {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+}
+
+.share-option:hover {
+  background: #f1f3ff;
+}
+
+.copy-box {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.copy-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.copy-box button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #6c4dff;
+  color: white;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Share Button -->
+<button class="share-btn" onclick="openShare()">🔗 Share</button>
+
+<!-- Modal -->
+<div class="modal" id="shareModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Share Post</h3>
+      <span class="close" onclick="closeShare()">✖</span>
+    </div>
+
+    <!-- Social Options -->
+    <div class="share-options">
+      <div class="share-option" onclick="share('facebook')">Facebook</div>
+      <div class="share-option" onclick="share('twitter')">Twitter</div>
+      <div class="share-option" onclick="share('whatsapp')">WhatsApp</div>
+      <div class="share-option" onclick="share('email')">Email</div>
+    </div>
+
+    <!-- Copy Link -->
+    <div class="copy-box">
+      <input id="postLink" value="https://community.com/post/123" readonly>
+      <button onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openShare() {
+  document.getElementById("shareModal").style.display = "flex";
+}
+
+function closeShare() {
+  document.getElementById("shareModal").style.display = "none";
+}
+
+function copyLink() {
+  const input = document.getElementById("postLink");
+  input.select();
+  document.execCommand("copy");
+  alert("Link copied!");
+}
+
+function share(platform) {
+  const url = encodeURIComponent("https://community.com/post/123");
+  const text = encodeURIComponent("Check out this post!");
+
+  let link = "";
+  if (platform === "facebook")
+    link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  if (platform === "twitter")
+    link = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+  if (platform === "whatsapp")
+    link = `https://wa.me/?text=${text}%20${url}`;
+  if (platform === "email")
+    link = `mailto:?subject=Interesting Post&body=${text}%20${url}`;
+
+  window.open(link, "_blank");
+}
+</script>
+
+</body>
+</html>

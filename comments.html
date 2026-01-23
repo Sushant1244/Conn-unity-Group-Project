@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Community Comments</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6fb;
+  padding: 20px;
+}
+
+.comment-section {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+.comment-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.comment-input button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background: #6c4dff;
+  color: white;
+  cursor: pointer;
+}
+
+.comment {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #9b7bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.comment-body {
+  margin: 8px 0;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.reply-box {
+  margin-top: 10px;
+  display: none;
+  gap: 10px;
+}
+
+.reply-box input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid #ccc;
+}
+
+.reply {
+  margin-left: 40px;
+  margin-top: 10px;
+  background: #f1f3fa;
+  border-radius: 10px;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="comment-section">
+  <h3>Comments</h3>
+
+  <!-- Add Comment -->
+  <div class="comment-input">
+    <input id="commentInput" placeholder="Add a comment..." />
+    <button onclick="addComment()">Post</button>
+  </div>
+
+  <!-- Comment List -->
+  <div id="comments"></div>
+</div>
+
+<script>
+const commentsDiv = document.getElementById("comments");
+
+function addComment() {
+  const input = document.getElementById("commentInput");
+  if (!input.value.trim()) return;
+
+  const comment = createComment("User123", input.value);
+  commentsDiv.prepend(comment);
+  input.value = "";
+}
+
+function createComment(user, text) {
+  const div = document.createElement("div");
+  div.className = "comment";
+
+  div.innerHTML = `
+    <div class="comment-header">
+      <div class="avatar">${user[0]}</div>
+      <strong>${user}</strong>
+      <span style="font-size:12px;color:#888;">just now</span>
+    </div>
+    <div class="comment-body">${text}</div>
+    <div class="comment-actions">
+      <span onclick="like(this)">👍 <span>0</span></span>
+      <span onclick="toggleReply(this)">Reply</span>
+    </div>
+    <div class="reply-box">
+      <input placeholder="Write a reply..." />
+      <button onclick="addReply(this)">Reply</button>
+    </div>
+  `;
+  return div;
+}
+
+function like(el) {
+  const count = el.querySelector("span");
+  count.textContent = parseInt(count.textContent) + 1;
+}
+
+function toggleReply(el) {
+  const box = el.closest(".comment").querySelector(".reply-box");
+  box.style.display = box.style.display === "flex" ? "none" : "flex";
+}
+
+function addReply(btn) {
+  const input = btn.previousElementSibling;
+  if (!input.value.trim()) return;
+
+  const reply = document.createElement("div");
+  reply.className = "reply";
+  reply.innerHTML = `
+    <strong>User123</strong>
+    <p>${input.value}</p>
+  `;
+
+  btn.closest(".comment").appendChild(reply);
+  input.value = "";
+}
+</script>
+
+</body>
+</html>
