@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './Login.css'
+import Logo from './Logo'
 
 export default function Login({ open, onSwitchToRegister, onAdminLogin, onForgotPassword, showNotification }){
   const [email, setEmail] = useState('')
@@ -37,9 +38,7 @@ export default function Login({ open, onSwitchToRegister, onAdminLogin, onForgot
       <div className="login-container">
         <div className="login-icon-wrapper">
           <div className="login-icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2l2 2h-4l2-2z" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Logo size={50} />
           </div>
         </div>
         <h2 className="login-title">Welcome Back</h2>
