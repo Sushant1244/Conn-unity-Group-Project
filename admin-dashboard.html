@@ -5,7 +5,6 @@
 <title>Admin Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -15,7 +14,6 @@ body {
   background: #f2f2f2;
 }
 
-/* Top Bar */
 .topbar {
   background: linear-gradient(90deg, #3f37ff, #a100ff);
   color: white;
@@ -29,7 +27,6 @@ body {
   font-size: 14px;
 }
 
-/* Navigation */
 .navbar {
   background: white;
   margin: 20px;
@@ -46,12 +43,10 @@ body {
   font-weight: 500;
 }
 
-/* Layout */
 .container {
   padding: 0 20px 30px;
 }
 
-/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -83,7 +78,6 @@ body {
   font-size: 12px;
 }
 
-/* Charts Grid */
 .charts {
   display: grid;
   grid-template-columns: 2fr 2fr;
@@ -96,7 +90,6 @@ body {
   border-radius: 15px;
 }
 
-/* Bottom */
 .bottom {
   display: grid;
   grid-template-columns: 1.5fr 2fr;
@@ -104,7 +97,6 @@ body {
   margin-top: 20px;
 }
 
-/* Activity */
 .activity li {
   list-style: none;
   margin-bottom: 12px;
@@ -119,13 +111,11 @@ body {
 
 <body>
 
-<!-- Top Bar -->
 <div class="topbar">
   <span>← Back to Site &nbsp;&nbsp; Admin Panel</span>
   <span>Welcome, admin</span>
 </div>
 
-<!-- Navigation -->
 <div class="navbar">
   <div>Dashboard</div>
   <div>Moderation</div>
@@ -138,7 +128,6 @@ body {
 
 <div class="container">
 
-<!-- Stats Cards -->
 <div class="cards">
   <div class="card">
     <h4>Total Users</h4>
@@ -195,7 +184,7 @@ body {
 </div>
 
 <script>
-// Line Chart
+
 new Chart(document.getElementById("lineChart"), {
   type: "line",
   data: {
@@ -207,7 +196,6 @@ new Chart(document.getElementById("lineChart"), {
   }
 });
 
-// Bar Chart
 new Chart(document.getElementById("barChart"), {
   type: "bar",
   data: {
@@ -219,7 +207,6 @@ new Chart(document.getElementById("barChart"), {
   }
 });
 
-// Pie Chart
 new Chart(document.getElementById("pieChart"), {
   type: "pie",
   data: {
