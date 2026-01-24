@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './Register.css'
+import Logo from './Logo'
 
 export default function Register({ open, onClose, showNotification }){
   const [username, setUsername] = useState('')
@@ -57,9 +58,7 @@ export default function Register({ open, onClose, showNotification }){
       <div className="register-container">
         <div className="register-icon-wrapper">
           <div className="register-icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2l2 2h-4l2-2z" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Logo size={50} />
           </div>
         </div>
         <h2 className="register-title">Join Connunity</h2>
