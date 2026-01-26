@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Admin from './pages/Admin'
+import VerifyOtp from './pages/VerifyOtp'
 
 const mountRoot = () => {
   const rootEl = document.createElement('div')
@@ -14,6 +15,13 @@ const mountRoot = () => {
     const hash = (window.location.hash || '#login').replace('#', '')
     if (hash === 'register') {
       root.render(<Register onLoginClick={() => { window.location.hash = '#login' }} />)
+    } else if (hash === 'verify') {
+      root.render(
+        <VerifyOtp
+          onBackToLogin={() => { window.location.hash = '#login' }}
+          onBackToRegister={() => { window.location.hash = '#register' }}
+        />
+      )
     } else if (hash === 'admin') {
       root.render(<Admin onBack={() => { window.location.hash = '#login' }} />)
     } else {

@@ -92,9 +92,10 @@
 
 /* --- Profile section --- */
 .profile-grid { display:grid; grid-template-columns: 220px 1fr; gap:20px; margin-top:8px; }
-.avatar-lg { width:180px; height:180px; border-radius:50%; background:#eef2ff; color:#1f2351; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; border:2px solid rgba(0,0,0,0.06); }
-.avatar-lg img { width:100%; height:100%; object-fit:cover; }
-.avatar-upload { position:absolute; right:8px; bottom:8px; background:#fff; border:1px solid rgba(0,0,0,0.12); border-radius:999px; padding:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.avatar-lg { width:180px; height:180px; border-radius:50%; background:#eef2ff; color:#1f2351; display:flex; align-items:center; justify-content:center; position:relative; overflow:visible; border:2px solid rgba(0,0,0,0.06); }
+.avatar-lg img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.avatar-upload { position:absolute; right:-8px; bottom:16px; background:#fff; border:2px solid #60a5fa; border-radius:50%; padding:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(96,165,250,0.3); width:44px; height:44px; color:#60a5fa; transition:all 0.2s; }
+.avatar-upload:hover { background:#60a5fa; color:#fff; box-shadow:0 6px 16px rgba(96,165,250,0.4); transform:scale(1.1); }
 .avatar-upload input { display:none; }
 .form-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
 .form-grid label { display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#111; }

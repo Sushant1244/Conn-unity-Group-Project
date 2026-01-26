@@ -9,25 +9,37 @@ const Register = ({ onLoginClick }) => {
   const [agree, setAgree] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const passwordsMatch = password && password === confirmPassword;
-  const canSubmit = username && email && passwordsMatch && agree;
+  const canSubmit = username && email && passwordsMatch && agree && !isSubmitting;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    // Use client-side demo auth service
-    authRegister({ username, email, password }).then(data => {
+    setIsSubmitting(true);
+    try {
+      const data = await authRegister({ username, email, password });
       if (data.success) {
-        // redirect to dashboard demo
-        window.location.href = '/dashboard.html';
-      } else {
-        alert('Error: ' + (data.message || 'unknown'))
+        sessionStorage.setItem(
+          'connunity_toast',
+          JSON.stringify({
+            type: 'success',
+            title: 'Registration complete',
+            message: `We sent a 6-digit OTP to ${email}. Verify it to finish setting up your account.`,
+          })
+        );
+        sessionStorage.setItem('connunity_pending_verification_email', email);
+        window.location.hash = '#verify';
+        return;
       }
-    }).catch(err => {
-      console.error(err)
-      alert('Registration error')
-    })
+      alert('Error: ' + (data.message || 'unknown'));
+    } catch (err) {
+      console.error(err);
+      alert('Registration error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -183,10 +195,8 @@ const Register = ({ onLoginClick }) => {
               boxShadow: canSubmit ? '0 6px 18px rgba(7,6,10,0.18)' : 'none'
             }}
           >
-            Create Account
+            {isSubmitting ? 'Creating account...' : 'Create Account'}
           </button>
-
-          
         </div>
 
         <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.06)', margin: '10px 0 14px' }} />

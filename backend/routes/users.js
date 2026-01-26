@@ -1,10 +1,29 @@
-const express = require('express')
-const router = express.Router()
-const ah = require('../helpers/asyncHandler')
-const { getProfile, updateProfile, getUserById } = require('../controllers/userController')
+const express = require('express');
+const router = express.Router();
+const ah = require('../helpers/asyncHandler');
+const { authMiddleware } = require('../middleware/auth');
+const {
+    getProfile,
+    updateProfile,
+    getUserPosts,
+    getSavedPosts,
+    getUserCommunities,
+    getNotifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    clearAllNotifications
+} = require('../controllers/userController');
 
-router.get('/profile', ah(getProfile))
-router.put('/profile', ah(updateProfile))
-router.get('/users/:id', ah(getUserById))
+router.get('/users/:id', ah(getProfile));
+router.put('/users/:id', authMiddleware, ah(updateProfile));
+router.get('/users/:id/posts', ah(getUserPosts));
+router.get('/users/:id/saved', authMiddleware, ah(getSavedPosts));
+router.get('/users/:id/communities', ah(getUserCommunities));
 
-module.exports = router
+// Notifications
+router.get('/notifications', authMiddleware, ah(getNotifications));
+router.post('/notifications/:id/read', authMiddleware, ah(markNotificationRead));
+router.post('/notifications/read-all', authMiddleware, ah(markAllNotificationsRead));
+router.delete('/notifications', authMiddleware, ah(clearAllNotifications));
+
+module.exports = router;

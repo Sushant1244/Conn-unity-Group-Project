@@ -30,6 +30,61 @@ Starts on http://localhost:4000 with hot-reload via nodemon.
 npm start
 ```
 
+## Email Delivery
+
+Supports multiple email providers via `EMAIL_MODE` in `.env`:
+
+- `smtp` (Gmail or any SMTP)
+  - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+  - Example (Gmail):
+    ```env
+    EMAIL_MODE=smtp
+    SMTP_HOST=smtp.gmail.com
+    SMTP_PORT=465
+    SMTP_SECURE=true
+    SMTP_USER=your@gmail.com
+    SMTP_PASS=app_password_here
+    SMTP_FROM="Connunity <your@gmail.com>"
+    ```
+- `sendgrid`
+  - `SENDGRID_API_KEY`, `SENDGRID_FROM` (must be a verified sender)
+    ```env
+    EMAIL_MODE=sendgrid
+    SENDGRID_API_KEY=SG.xxxxx
+    SENDGRID_FROM="Connunity <sender@yourdomain.com>"
+    ```
+- `ethereal` (development-only preview inbox)
+  - No extra envs needed; a test account is created at runtime.
+  - Preview URLs are logged in the backend (click to view the email).
+    ```env
+    EMAIL_MODE=ethereal
+    ```
+- `mock` (no real send, logs OTP in backend)
+  ```env
+  EMAIL_MODE=mock
+  ```
+
+Optional fallback:
+
+- `EMAIL_FALLBACK=mock` → Falls back to mock mode when provider errors occur.
+
+### OTP Endpoints
+
+- `POST /api/register` → Sends verification OTP
+- `POST /api/resend-otp` → Resends OTP
+- `POST /api/verify-otp` → Verifies OTP and returns JWT + user
+
+### Quick Test
+
+```bash
+cd backend
+npm run dev
+```
+
+- Register on the frontend to trigger an OTP.
+- Ethereal: check backend logs for `Preview URL` and open it.
+- SMTP/SendGrid: check your inbox; also verify sender configuration.
+
 ## Files you may be looking for
 - Entry point: [index.js](index.js) → starts the server (delegates to [server.js](server.js))
 - Admin Dashboard UI component is a frontend file: [frontend/src/pages/AdminDashboard.jsx](../frontend/src/pages/AdminDashboard.jsx)

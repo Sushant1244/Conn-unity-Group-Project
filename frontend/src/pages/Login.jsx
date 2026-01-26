@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { login as authLogin } from '../authService';
+import React, { useEffect, useState } from 'react';
+import { login as authLogin, verifyOTP, resendOTP } from '../authService';
 
 const Login = ({ onSignupClick, onAdminClick }) => {
   const [email, setEmail] = useState('');
@@ -10,23 +10,135 @@ const Login = ({ onSignupClick, onAdminClick }) => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
+  // Verification state
+  const [needsVerify, setNeedsVerify] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [pendingCredentials, setPendingCredentials] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const toastPalette = {
+    success: { bg: '#ecfdf5', border: '#34d399', text: '#065f46' },
+    error: { bg: '#fef2f2', border: '#f87171', text: '#7f1d1d' },
+    warning: { bg: '#fffbeb', border: '#fbbf24', text: '#92400e' },
+    info: { bg: '#eff6ff', border: '#93c5fd', text: '#1e3a8a' },
+  };
+
+  const activeToastPalette = toast ? (toastPalette[toast.type] || toastPalette.info) : null;
+
   const canSubmit = email && password;
 
-  const handleSubmit = (e) => {
+  const showToast = ({ type = 'info', title, message, duration = 5000 }) => {
+    setToast({ id: Date.now(), type, title, message, duration });
+  };
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timeout = setTimeout(() => setToast(null), toast.duration);
+    return () => clearTimeout(timeout);
+  }, [toast]);
+
+  useEffect(() => {
+    const storedToast = sessionStorage.getItem('connunity_toast');
+    if (storedToast) {
+      try {
+        const parsed = JSON.parse(storedToast);
+        showToast(parsed);
+      } catch (err) {
+        console.warn('Failed to parse stored toast', err);
+      } finally {
+        sessionStorage.removeItem('connunity_toast');
+      }
+    }
+
+    const storedEmail = sessionStorage.getItem('connunity_pending_verification_email');
+    if (storedEmail) {
+      setVerifyEmail(storedEmail);
+      sessionStorage.removeItem('connunity_pending_verification_email');
+    }
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    // Use client-side demo auth service
-    authLogin({ email, password }).then(data => {
+    try {
+      const data = await authLogin({ email, password });
       if (data.success) {
-        // redirect to dashboard demo
         window.location.href = '/dashboard.html';
-      } else {
-        alert('Error: ' + (data.message || 'unknown'))
+        return;
       }
-    }).catch(err => {
-      console.error(err)
-      alert('Login error')
-    })
+      if (data.needsVerification) {
+        setVerifyEmail(email);
+        setNeedsVerify(true);
+        setPendingCredentials({ email, password });
+        showToast({
+          type: 'warning',
+          title: 'Verify your email',
+          message: `We sent a verification code to ${email}. Enter it to finish logging in.`,
+        });
+        return;
+      }
+      showToast({ type: 'error', title: 'Login failed', message: data.message || 'Invalid credentials' });
+    } catch (err) {
+      console.error(err);
+      showToast({ type: 'error', title: 'Login error', message: 'Unable to login right now. Please try again.' });
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    if (!otp) return;
+    setIsVerifying(true);
+    try {
+      const data = await verifyOTP({ email: verifyEmail, otp });
+      if (!data.success) {
+        showToast({ type: 'error', title: 'Invalid code', message: data.message || 'OTP is invalid or expired.' });
+        return;
+      }
+
+      showToast({ type: 'success', title: 'Email verified', message: 'Logging you in now…' });
+      setNeedsVerify(false);
+      setOtp('');
+      setPendingCredentials(null);
+
+      // verifyOTP() now stores token/user if returned
+      if (data.token) {
+        window.location.href = '/dashboard.html';
+        return;
+      }
+
+      // Fallback to old behavior if backend doesn’t return token
+      if (pendingCredentials) {
+        const loginResult = await authLogin(pendingCredentials);
+        if (loginResult.success) {
+          window.location.href = '/dashboard.html';
+          return;
+        }
+        showToast({ type: 'error', title: 'Login failed', message: loginResult.message || 'Please try again.' });
+      } else {
+        showToast({ type: 'info', title: 'Verified', message: 'Please login with your credentials.' });
+      }
+    } catch (err) {
+      console.error(err);
+      showToast({ type: 'error', title: 'Verification error', message: 'Unable to verify OTP. Try again.' });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      const data = await resendOTP(verifyEmail);
+      if (data.success) {
+        showToast({ type: 'info', title: 'OTP sent', message: 'Check your inbox for the latest code.' });
+      } else {
+        showToast({ type: 'error', title: 'Resend failed', message: data.message || 'Unable to resend OTP.' });
+      }
+    } catch (err) {
+      console.error(err);
+      showToast({ type: 'error', title: 'Resend error', message: 'Something went wrong. Try again later.' });
+    }
   };
 
   const handleForgotPassword = (e) => {
@@ -35,7 +147,7 @@ const Login = ({ onSignupClick, onAdminClick }) => {
       alert('Please enter your email address');
       return;
     }
-    
+
     // Simulate sending reset email
     setTimeout(() => {
       setResetSent(true);
@@ -57,11 +169,77 @@ const Login = ({ onSignupClick, onAdminClick }) => {
       background: 'linear-gradient(180deg, #f8f5ff 0%, #fbf7fb 100%)',
       padding: '40px'
     }}>
+      {toast && activeToastPalette && (
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 2000 }}>
+          <div style={{
+            minWidth: 280,
+            maxWidth: 360,
+            padding: '16px 20px',
+            borderRadius: 12,
+            border: `1px solid ${activeToastPalette.border}`,
+            background: activeToastPalette.bg,
+            color: activeToastPalette.text,
+            boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+            position: 'relative'
+          }}>
+            <button onClick={() => setToast(null)} style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              border: 'none',
+              background: 'transparent',
+              color: activeToastPalette.text,
+              fontSize: 18,
+              cursor: 'pointer'
+            }}>×</button>
+            {toast.title && <div style={{ fontWeight: 700, marginBottom: 6 }}>{toast.title}</div>}
+            {toast.message && <div style={{ fontSize: 14, lineHeight: 1.4 }}>{toast.message}</div>}
+          </div>
+        </div>
+      )}
+
       <div style={{ textAlign: 'center', marginBottom: 18 }}>
         <img src="/logo.jpeg" alt="Connunity Logo" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 12, boxShadow: '0 6px 18px rgba(110,82,255,0.18)' }} />
         <h1 style={{ margin: 0, fontSize: 28, color: '#5b2fff', fontWeight: 700 }}>Connunity</h1>
         <p style={{ margin: '8px 0 0', color: '#6b6b6b' }}>Welcome back! Please login to your account.</p>
       </div>
+
+      {/* Verification Modal */}
+      {needsVerify && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '20px'
+        }} onClick={() => setNeedsVerify(false)}>
+          <div style={{
+            background: '#fff', borderRadius: 16, padding: 32, width: 440, maxWidth: '100%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)', position: 'relative'
+          }} onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setNeedsVerify(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', fontSize: 24, cursor: 'pointer', color: '#6b6b6b' }}>×</button>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 16 }}>🛡️</div>
+              <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Verify Your Email</h2>
+              <p style={{ margin: '8px 0 0', color: '#6b6b6b', fontSize: 14 }}>Enter the code sent to <strong>{verifyEmail}</strong></p>
+            </div>
+            <form onSubmit={handleVerifyOTP}>
+              <label style={{ display: 'block', marginBottom: 20 }}>
+                <div style={{ fontWeight: 600, marginBottom: 8, color: '#1a1a1a' }}>Verification Code</div>
+                <input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  required
+                  style={{ width: '100%', padding: '14px', borderRadius: 8, border: '2px solid #e5e5e5', fontSize: 20, textAlign: 'center', letterSpacing: '8px', outline: 'none' }}
+                />
+              </label>
+              <button type="submit" disabled={otp.length !== 6 || isVerifying} style={{ width: '100%', padding: '14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', fontWeight: 700, fontSize: 16, cursor: 'pointer', marginBottom: 12 }}>
+                {isVerifying ? 'Verifying...' : 'Verify Email'}
+              </button>
+              <button type="button" onClick={handleResendOTP} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '2px solid #e5e5e5', background: 'transparent', color: '#6b6b6b', fontWeight: 600, cursor: 'pointer' }}>Resend Code</button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Forgot Password Modal */}
       {showForgotPassword && (
@@ -87,7 +265,7 @@ const Login = ({ onSignupClick, onAdminClick }) => {
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
             position: 'relative'
           }} onClick={(e) => e.stopPropagation()}>
-            <button 
+            <button
               onClick={() => setShowForgotPassword(false)}
               style={{
                 position: 'absolute',
@@ -101,7 +279,7 @@ const Login = ({ onSignupClick, onAdminClick }) => {
                 padding: 4
               }}
             >×</button>
-            
+
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
               <div style={{
                 width: 60,
@@ -237,7 +415,7 @@ const Login = ({ onSignupClick, onAdminClick }) => {
                 outline: 'none'
               }}
             />
-            
+
           </div>
         </label>
 
@@ -275,14 +453,14 @@ const Login = ({ onSignupClick, onAdminClick }) => {
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} style={{ width: 16, height: 16 }} />
             <span style={{ marginLeft: 6, color: '#333' }}>Remember me</span>
           </label>
-          <button 
-            type="button" 
-            onClick={() => setShowForgotPassword(true)} 
-            style={{ 
-              border: 'none', 
-              background: 'transparent', 
-              color: '#5b2fff', 
-              fontWeight: 600, 
+          <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: '#5b2fff',
+              fontWeight: 600,
               cursor: 'pointer',
               textDecoration: 'none',
               transition: 'color 0.2s'
@@ -313,7 +491,7 @@ const Login = ({ onSignupClick, onAdminClick }) => {
             Login
           </button>
 
-          
+
         </div>
 
         <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.06)', margin: '10px 0 14px' }} />

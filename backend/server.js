@@ -3,13 +3,16 @@ const path = require('path')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const http = require('http')
+// Ensure .env is loaded from backend directory regardless of CWD
+require('dotenv').config({ path: path.join(__dirname, '.env') })
+const { pool } = require('./config/database')
 const { PORT, cors: corsCfg } = require('./config/config')
 
 const app = express()
 const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET','POST'] }
+  cors: { origin: '*', methods: ['GET', 'POST'] }
 })
 // Port comes from config
 
@@ -18,6 +21,15 @@ app.use(bodyParser.json())
 
 // Serve frontend static files (optional when deployed together)
 app.use(express.static(path.join(__dirname, '..', 'frontend')))
+
+// Test database connection on startup
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ Database connection failed:', err.message);
+  } else {
+    console.log('✅ Database connected successfully at', res.rows[0].now);
+  }
+});
 
 // Health
 app.get('/api/health', (req, res) => {
@@ -30,6 +42,7 @@ app.use('/api', require('./routes/admin'))
 app.use('/api', require('./routes/users'))
 app.use('/api', require('./routes/communities'))
 app.use('/api', require('./routes/posts'))
+app.use('/api', require('./routes/comments'))
 app.use('/api', require('./routes/dashboard'))
 // API 404 handler
 app.use(require('./middleware/notFound'))
@@ -57,7 +70,7 @@ function emitPresence(room) {
 io.on('connection', (socket) => {
   // Join default room
   socket.join('general')
-  socket.data.username = 'guest-' + socket.id.slice(0,4)
+  socket.data.username = 'guest-' + socket.id.slice(0, 4)
   // track in default room
   if (!roomMembers.has('general')) roomMembers.set('general', new Map())
   roomMembers.get('general').set(socket.id, socket.data.username)
