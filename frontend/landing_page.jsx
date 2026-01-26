@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="hero-description">A warm and welcoming place where your thoughts truly matter. Share your ideas, connect with others, and explore meaningful conversations in a community built on real, honest expression.</p>
                     <div class="hero-buttons">
                         <a href="/auth.html#register" class="btn btn-large btn-primary">Get Started Free →</a>
-                        <button class="btn btn-large btn-secondary">Explore Posts →</button>
+                        <a href="/auth.html#register" class="btn btn-large btn-secondary">Explore Posts →</a>
                     </div>
                     <div class="hero-stats">
                         <div class="stat">
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span>Connect with like-minded people</span>
                             </li>
                         </ul>
-                        <button class="btn btn-card-cta">Start Creating</button>
+                        <a href="/auth.html#register" class="btn btn-card-cta">Start Creating</a>
                     </div>
                 </div>
             </div>
