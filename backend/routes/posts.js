@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ah = require('../helpers/asyncHandler');
 const { authMiddleware, optionalAuth } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
 const {
     getPosts,
     createPost,
@@ -13,7 +14,8 @@ const {
 } = require('../controllers/postController');
 
 router.get('/posts', ah(getPosts));
-router.post('/posts', authMiddleware, ah(createPost));
+// Accept multipart form with optional field name 'media'
+router.post('/posts', authMiddleware, upload.single('media'), ah(createPost));
 router.get('/posts/:id', ah(getPost));
 router.put('/posts/:id', authMiddleware, ah(updatePost));
 router.delete('/posts/:id', authMiddleware, ah(deletePost));

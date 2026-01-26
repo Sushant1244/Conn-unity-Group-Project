@@ -1,9 +1,10 @@
 const db = require('../services/db.service');
+const { uploadBuffer } = require('../services/cloudinary.service');
 
 // Create new community
 exports.createCommunity = async (req, res) => {
   try {
-    const { name, displayName, description, topics, imageUrl } = req.body || {};
+    const { name, displayName, description, topics } = req.body || {};
     const userId = req.user?.id; // From auth middleware
 
     if (!name || !displayName) {
@@ -14,6 +15,20 @@ exports.createCommunity = async (req, res) => {
     const existing = await db.getCommunityByName(name);
     if (existing) {
       return res.status(409).json({ success: false, message: 'Community name already taken' });
+    }
+
+    // Handle optional image upload
+    let imageUrl = undefined;
+    if (req.file && req.file.buffer) {
+      try {
+        const result = await uploadBuffer(req.file.buffer, { folder: 'connunity/communities', resource_type: 'image' });
+        imageUrl = result.secure_url || result.url;
+      } catch (e) {
+        console.error('Cloudinary upload failed (community image):', e?.message || e);
+        return res.status(500).json({ success: false, message: 'Failed to upload image' });
+      }
+    } else if (req.body.imageUrl) {
+      imageUrl = req.body.imageUrl;
     }
 
     const community = await db.createCommunity(

@@ -1,9 +1,10 @@
 const db = require('../services/db.service');
+const { uploadBuffer } = require('../services/cloudinary.service');
 
 // Create new post
 exports.createPost = async (req, res) => {
   try {
-    const { communityId, title, body, category, tag, mood, mediaUrl, mediaType } = req.body || {};
+    const { communityId, title, body, category, tag, mood } = req.body || {};
     const userId = req.user?.id;
 
     if (!userId) {
@@ -14,6 +15,29 @@ exports.createPost = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Title, body, and community are required' });
     }
 
+    // Handle optional media upload
+    let finalMediaUrl = undefined;
+    let finalMediaType = undefined;
+
+    if (req.file && req.file.buffer) {
+      try {
+        const isVideo = (req.file.mimetype || '').startsWith('video/');
+        const result = await uploadBuffer(req.file.buffer, {
+          folder: 'connunity/posts',
+          resource_type: isVideo ? 'video' : 'image',
+        });
+        finalMediaUrl = result.secure_url || result.url;
+        finalMediaType = isVideo ? 'video' : 'image';
+      } catch (e) {
+        console.error('Cloudinary upload failed (post media):', e?.message || e);
+        return res.status(500).json({ success: false, message: 'Failed to upload media' });
+      }
+    } else if (req.body.mediaUrl) {
+      // Fallback: accept URL passed directly
+      finalMediaUrl = req.body.mediaUrl;
+      finalMediaType = req.body.mediaType || null;
+    }
+
     const post = await db.createPost(
       parseInt(communityId),
       userId,
@@ -22,8 +46,8 @@ exports.createPost = async (req, res) => {
       category,
       tag,
       mood,
-      mediaUrl,
-      mediaType
+      finalMediaUrl,
+      finalMediaType
     );
 
     return res.status(201).json({ success: true, post });
