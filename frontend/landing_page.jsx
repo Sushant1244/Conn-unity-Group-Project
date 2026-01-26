@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="cta-title">Start Your Journey With Conn-Unity</h2>
                 <p class="cta-description">Share your ideas, discover new perspectives, and connect with a community that celebrates meaningful conversations.</p>
                 <div class="cta-buttons">
-                    <button class="btn btn-large btn-primary">Join Conn-Unity →</button>
-                    <button class="btn btn-large btn-secondary">Sign In</button>
+                    <a href="/auth.html#register" class="btn btn-large btn-primary">Join Conn-Unity →</a>
+                    <a href="/auth.html#login" class="btn btn-large btn-secondary">Sign In</a>
                 </div>
             </div>
         </div>
