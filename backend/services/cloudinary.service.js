@@ -3,14 +3,30 @@ const { v2: cloudinary } = require('cloudinary');
 // Configure Cloudinary using CLOUDINARY_URL or explicit creds
 // Example: CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
 function ensureConfigured() {
-  if (!cloudinary.config().cloud_name) {
-    const { CLOUDINARY_URL } = process.env;
-    if (!CLOUDINARY_URL) {
-      throw new Error('CLOUDINARY_URL is not set in environment');
-    }
-    // cloudinary v2 will auto-read CLOUDINARY_URL from env; call config to lock
-    cloudinary.config({ secure: true });
+  // Prefer explicit envs if provided, else fall back to CLOUDINARY_URL
+  const {
+    CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET,
+    CLOUDINARY_URL
+  } = process.env;
+
+  if (CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET) {
+    cloudinary.config({
+      cloud_name: CLOUDINARY_CLOUD_NAME,
+      api_key: CLOUDINARY_API_KEY,
+      api_secret: CLOUDINARY_API_SECRET,
+      secure: true,
+    });
+    return;
   }
+
+  if (CLOUDINARY_URL) {
+    cloudinary.config({ secure: true });
+    return;
+  }
+
+  throw new Error('Cloudinary credentials missing: set CLOUDINARY_URL or explicit CLOUDINARY_* envs');
 }
 
 /**

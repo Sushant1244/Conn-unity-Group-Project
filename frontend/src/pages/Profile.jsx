@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
+const API_URL = 'http://localhost:4000/api'
+
 export default function Profile({ onBack, posts = [], interactions = null, username = 'dipendraSah', onToggleSave, onToggleUpvote, onToggleDownvote }) {
   const [activeTab, setActiveTab] = useState('Overview')
   const [achievementsOpen, setAchievementsOpen] = useState(false)
@@ -437,17 +439,38 @@ export default function Profile({ onBack, posts = [], interactions = null, usern
                 className="btn btn-primary"
                 onClick={() => {
                   if (settingOpen === 'avatar' && avatarFile) {
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      const url = String(reader.result)
-                      setAvatarUrl(url)
-                      localStorage.setItem('connunity.avatarUrl', url)
-                      setSettingOpen(null)
-                      setAvatarFile(null)
-                      setToast({ visible: true, message: 'Avatar updated' })
-                      window.setTimeout(() => setToast({ visible: false, message: '' }), 1800)
-                    }
-                    reader.readAsDataURL(avatarFile)
+                    // Upload to backend -> Cloudinary
+                    (async () => {
+                      try {
+                        const userRaw = localStorage.getItem('connunity_current_user')
+                        const token = localStorage.getItem('connunity_token')
+                        if (!userRaw || !token) throw new Error('Not authenticated')
+                        const user = JSON.parse(userRaw)
+                        const fd = new FormData()
+                        fd.append('avatar', avatarFile)
+                        const resp = await fetch(`${API_URL}/users/${user.id}/avatar`, {
+                          method: 'PUT',
+                          headers: { Authorization: `Bearer ${token}` },
+                          body: fd
+                        })
+                        const data = await resp.json()
+                        if (data?.success && data.user?.avatar_url) {
+                          setAvatarUrl(data.user.avatar_url)
+                          // persist in current user cache
+                          localStorage.setItem('connunity.avatarUrl', data.user.avatar_url)
+                          localStorage.setItem('connunity_current_user', JSON.stringify({ ...user, avatar_url: data.user.avatar_url }))
+                          setSettingOpen(null)
+                          setAvatarFile(null)
+                          setToast({ visible: true, message: 'Avatar updated' })
+                          window.setTimeout(() => setToast({ visible: false, message: '' }), 1800)
+                        } else {
+                          alert(data?.message || 'Failed to update avatar')
+                        }
+                      } catch (e) {
+                        console.error('Avatar upload failed', e)
+                        alert('Failed to update avatar')
+                      }
+                    })()
                   } else {
                     setSettingOpen(null)
                     setToast({ visible: true, message: 'Saved successfully' })

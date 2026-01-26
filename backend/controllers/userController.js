@@ -1,4 +1,5 @@
 const db = require('../services/db.service');
+const { uploadBuffer } = require('../services/cloudinary.service');
 
 // Get user profile
 exports.getProfile = async (req, res) => {
@@ -34,6 +35,37 @@ exports.updateProfile = async (req, res) => {
     return res.json({ success: true, user: updated });
   } catch (error) {
     console.error('Update profile error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Update user avatar (image upload)
+exports.updateAvatar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (parseInt(id) !== userId) {
+      return res.status(403).json({ success: false, message: 'Cannot update another user\'s avatar' });
+    }
+
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ success: false, message: 'No image file uploaded' });
+    }
+
+    let url;
+    try {
+      const result = await uploadBuffer(req.file.buffer, { folder: 'connunity/avatars', resource_type: 'image' });
+      url = result.secure_url || result.url;
+    } catch (e) {
+      console.error('Cloudinary upload failed (avatar):', e?.message || e);
+      return res.status(500).json({ success: false, message: 'Failed to upload avatar' });
+    }
+
+    const updated = await db.updateUser(parseInt(id), { avatar_url: url });
+    return res.json({ success: true, user: updated });
+  } catch (error) {
+    console.error('Update avatar error:', error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 };

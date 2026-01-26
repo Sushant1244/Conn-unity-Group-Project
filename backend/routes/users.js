@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const ah = require('../helpers/asyncHandler');
 const { authMiddleware } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
 const {
     getProfile,
     updateProfile,
+    updateAvatar,
     getUserPosts,
     getSavedPosts,
     getUserCommunities,
@@ -16,6 +18,7 @@ const {
 
 router.get('/users/:id', ah(getProfile));
 router.put('/users/:id', authMiddleware, ah(updateProfile));
+router.put('/users/:id/avatar', authMiddleware, upload.single('avatar'), ah(updateAvatar));
 router.get('/users/:id/posts', ah(getUserPosts));
 router.get('/users/:id/saved', authMiddleware, ah(getSavedPosts));
 router.get('/users/:id/communities', ah(getUserCommunities));

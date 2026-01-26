@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
+const API_URL = 'http://localhost:4000/api'
+
 const topicOptions = {
   '🎭Anime & Cosplay': ['Anime & Manga'],
   '🎨Art': ['Performing Arts', 'Architecture', 'Design', 'Art', 'Filmmaking', 'Photography'],
@@ -44,6 +46,7 @@ const Createcommunity = ({ onClose, onCreate }) => {
   const [communityName, setCommunityName] = useState('');
   const [description, setDescription] = useState('');
   const [imageDataUrl, setImageDataUrl] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
 
   const filteredTopics = useMemo(() => {
     if (!filterText.trim()) return topicOptions;
@@ -72,16 +75,39 @@ const Createcommunity = ({ onClose, onCreate }) => {
 
   const handleBack = () => setStep(1);
 
-  const handleCreate = () => {
-    const payload = {
-      name: communityName.trim(),
-      description: description.trim(),
-      topics: selectedTopics,
-      imageDataUrl
-    };
-    console.log('Create community', payload);
-    if (onCreate) onCreate(payload);
-    else if (onClose) onClose();
+  const handleCreate = async () => {
+    const name = communityName.trim();
+    if (!name) return;
+    const displayName = name; // simple mapping
+
+    if (onCreate) {
+      onCreate({ name, displayName, description: description.trim(), topics: selectedTopics, imageDataUrl });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('connunity_token');
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('displayName', displayName);
+      fd.append('description', description.trim());
+      fd.append('topics', JSON.stringify(selectedTopics));
+      if (imageFile) fd.append('image', imageFile);
+      const resp = await fetch(`${API_URL}/communities`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd
+      });
+      const data = await resp.json();
+      if (data?.success) {
+        onClose && onClose();
+      } else {
+        alert(data?.message || 'Failed to create community');
+      }
+    } catch (e) {
+      console.error('Create community failed', e);
+      alert('Failed to create community');
+    }
   };
 
   const pillBase = {
@@ -338,6 +364,7 @@ const Createcommunity = ({ onClose, onCreate }) => {
             onChange={(e) => {
               const file = e.target.files && e.target.files[0]
               if (!file) return
+              setImageFile(file)
               const reader = new FileReader()
               reader.onload = () => setImageDataUrl(reader.result)
               reader.readAsDataURL(file)

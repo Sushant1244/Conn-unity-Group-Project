@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+const API_URL = 'http://localhost:4000/api'
+
 export default function CreatePost({ onClose, onCreate, communities = [], initialMood = null, autoOpenMedia = false }) {
   const [community, setCommunity] = useState(communities[0] || 'general')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [mediaUrl, setMediaUrl] = useState(null)
   const [mediaType, setMediaType] = useState(null) // 'image' | 'video'
+  const [mediaFile, setMediaFile] = useState(null)
   const [tag, setTag] = useState('Discussion')
   const [mood, setMood] = useState(initialMood)
   const fileInputRef = useRef(null)
@@ -24,9 +27,51 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
     }
   }, [autoOpenMedia])
 
-  const publish = () => {
+  const publish = async () => {
     if (!canPublish) return
-    onCreate && onCreate({ community, title: title.trim(), body: body.trim(), mediaUrl, mediaType, tag, mood })
+
+    try {
+      const token = localStorage.getItem('connunity_token')
+      // Resolve community ID by name
+      let communityId = null
+      try {
+        const resp = await fetch(`${API_URL}/communities?limit=200`)
+        const data = await resp.json()
+        if (data?.success && Array.isArray(data.communities)) {
+          const found = data.communities.find(c => c.name === community)
+          if (found) communityId = found.id
+        }
+      } catch {}
+
+      // If not resolved, let server handle an error nicely
+      const fd = new FormData()
+      if (communityId) fd.append('communityId', String(communityId))
+      fd.append('title', title.trim())
+      fd.append('body', body.trim())
+      if (tag) fd.append('tag', tag)
+      if (mood) fd.append('mood', mood)
+      if (mediaFile) fd.append('media', mediaFile)
+      if (!mediaFile && mediaUrl) {
+        fd.append('mediaUrl', mediaUrl)
+        if (mediaType) fd.append('mediaType', mediaType)
+      }
+
+      const resp2 = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd
+      })
+      const result = await resp2.json()
+      if (result?.success) {
+        onCreate && onCreate(result.post)
+        onClose && onClose()
+      } else {
+        alert(result?.message || 'Failed to create post')
+      }
+    } catch (e) {
+      console.error('Create post failed', e)
+      alert('Failed to create post')
+    }
   }
 
   return (
@@ -90,10 +135,12 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
                 if (!f) return
                 if (f.type && f.type.startsWith('video')) {
                   setMediaType('video')
+                  setMediaFile(f)
                   const url = URL.createObjectURL(f)
                   setMediaUrl(url)
                 } else {
                   setMediaType('image')
+                  setMediaFile(f)
                   const r = new FileReader()
                   r.onload = () => setMediaUrl(r.result)
                   r.readAsDataURL(f)

@@ -4,7 +4,7 @@ const { uploadBuffer } = require('../services/cloudinary.service');
 // Create new community
 exports.createCommunity = async (req, res) => {
   try {
-    const { name, displayName, description, topics } = req.body || {};
+    let { name, displayName, description, topics } = req.body || {};
     const userId = req.user?.id; // From auth middleware
 
     if (!name || !displayName) {
@@ -31,11 +31,16 @@ exports.createCommunity = async (req, res) => {
       imageUrl = req.body.imageUrl;
     }
 
+    // Normalize topics to array if provided as JSON string
+    if (typeof topics === 'string') {
+      try { topics = JSON.parse(topics); } catch { /* leave as-is */ }
+    }
+
     const community = await db.createCommunity(
       name,
       displayName,
       description,
-      topics || [],
+      Array.isArray(topics) ? topics : [],
       imageUrl,
       userId
     );

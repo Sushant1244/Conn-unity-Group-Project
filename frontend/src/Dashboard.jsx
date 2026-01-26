@@ -8,6 +8,7 @@ import ChatWidget from './chat/ChatWidget'
 import UserProfileModal from './components/UserProfileModal'
 
 export default function Dashboard() {
+  const API_URL = 'http://localhost:4000/api'
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAllModal, setShowAllModal] = useState(false)
   const [showCreatePostModal, setShowCreatePostModal] = useState(false)
@@ -89,32 +90,7 @@ export default function Dashboard() {
     showToast(`c/${slug} created successfully`)
   }
 
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      community: 'technology',
-      category: 'NEWS',
-      author: 'u/user@discord26',
-      time: '2h',
-      title: 'The Future of AI in Software Development: What We Can Expect in 2026',
-      body: 'Artificial intelligence has been making huge strides. From intelligent code completion to advanced testing, the tools available to developers are becoming increasingly sophisticated. What are your thoughts on where this is heading?',
-      mediaUrl: null,
-      mediaType: null,
-      likes: '3.5K', comments: '540'
-    },
-    {
-      id: 2,
-      community: 'gaming',
-      category: 'GAME',
-      author: 'u/PhilexWarrior',
-      time: '1h',
-      title: 'Just finished this indie game and WOW - hidden gem alert!',
-      body: "I can't believe this indie title under the radar. The storytelling is phenomenal, the gameplay is tight, and the art style is absolutely gorgeous. If you're looking for something new to play, I'd heartily recommend checking this out.",
-      mediaUrl: null,
-      mediaType: null,
-      likes: '16.5K', comments: '2.2K'
-    }
-  ])
+  const [posts, setPosts] = useState([])
   const POST_CHUNK = 3
   const [visibleCount, setVisibleCount] = useState(POST_CHUNK)
   const sentinelRef = useRef(null)
@@ -139,6 +115,56 @@ export default function Dashboard() {
       if (noti) setNotifications(JSON.parse(noti))
     } catch {}
   }, [])
+
+  // Fetch posts from backend so they persist across refreshes
+  useEffect(() => {
+    async function loadPosts() {
+      try {
+        const resp = await fetch(`${API_URL}/posts?limit=100`)
+        const data = await resp.json()
+        if (data?.success && Array.isArray(data.posts)) {
+          const mapped = data.posts.map(toUiPost)
+          setPosts(mapped)
+        }
+      } catch (e) {
+        // silently ignore for now
+        console.warn('Failed to load posts', e)
+      }
+    }
+    loadPosts()
+  }, [])
+
+  function toUiPost(p) {
+    // Accept either server post or local shape
+    if (p && p.id && (p.media_url !== undefined || p.mediaUrl !== undefined)) {
+      return {
+        id: p.id,
+        community: p.community_name || p.community || 'general',
+        category: p.category || null,
+        author: p.author_username ? `u/${p.author_username}` : (p.author || 'u/you'),
+        time: 'just now',
+        title: p.title,
+        body: p.body,
+        mediaUrl: p.media_url ?? p.mediaUrl ?? null,
+        mediaType: p.media_type ?? p.mediaType ?? null,
+        likes: p.vote_count ?? 0,
+        comments: p.comment_count ?? 0,
+      }
+    }
+    // Fallback mapping
+    return {
+      id: Date.now(),
+      community: p.community || 'general',
+      category: p.category || null,
+      author: p.author || 'u/you',
+      time: 'just now',
+      title: p.title,
+      body: p.body,
+      mediaUrl: p.mediaUrl || null,
+      mediaType: p.mediaType || null,
+      likes: '0', comments: '0'
+    }
+  }
 
   // Ensure interactions exist for all posts
   useEffect(() => {
@@ -214,25 +240,16 @@ export default function Dashboard() {
   }, [posts, searchQuery])
 
   const handleCreatePost = (payload) => {
-    const nowPost = {
-      id: Date.now(),
-      community: payload.community || 'general',
-      author: 'you',
-      time: 'just now',
-      title: payload.title,
-      body: payload.body,
-      mediaUrl: payload.mediaUrl || null,
-      mediaType: payload.mediaType || null,
-      likes: '0', comments: '0'
-    }
-    setPosts((prev) => [nowPost, ...prev])
+    // When CreatePost succeeds, it passes the server `post` object.
+    const uiPost = toUiPost(payload)
+    setPosts((prev) => [uiPost, ...prev])
     setShowCreatePostModal(false)
     showToast('Post published successfully')
     setVisibleCount((c) => Math.max(2, c))
 
     // Simulated engagement notifications
-    setTimeout(() => pushNotif({ type: 'like', text: `Alex liked your post "${payload.title}"`, postId: nowPost.id }), 1400)
-    setTimeout(() => pushNotif({ type: 'comment', text: `Priya commented on your post "${payload.title}"`, postId: nowPost.id }), 2600)
+    setTimeout(() => pushNotif({ type: 'like', text: `Alex liked your post "${uiPost.title}"`, postId: uiPost.id }), 1400)
+    setTimeout(() => pushNotif({ type: 'comment', text: `Priya commented on your post "${uiPost.title}"`, postId: uiPost.id }), 2600)
   }
 
   const openCreatePostWithMood = (m) => {
