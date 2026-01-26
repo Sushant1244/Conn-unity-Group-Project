@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { ArrowLeft, ShieldCheck, LayoutDashboard, Gavel, Users, Building2, FileText, BarChart3, Settings, UserCircle, MessageSquare, AlertTriangle, Check, X, UserMinus, UserPlus, Crown, Eye, EyeOff, Trash2, Clipboard, KeyRound, Edit3, Camera } from 'lucide-react'
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, ArcElement, DoughnutController, Tooltip, Legend } from 'chart.js'
 import '../admin-dashboard.css'
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend)
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, BarController, BarElement, DoughnutController, ArcElement, Tooltip, Legend)
 
 export default function AdminDashboard() {
   const lineRef = useRef(null)
@@ -83,16 +83,33 @@ export default function AdminDashboard() {
     // Pie Chart: Community Distribution
     const pctx = pieRef.current.getContext('2d')
     const pieChart = new Chart(pctx, {
-      type: 'pie',
+      type: 'doughnut',
       data: {
         labels: ['Gaming','Technology','Nature','Cooking','Other'],
         datasets: [{
-          data: [31,25,15,26,3],
+          data: [168.13, 210, 127.93, 214.06, 115.99],
           backgroundColor: ['#8b5cf6','#22c55e','#60a5fa','#f59e0b','#9ca3af'],
-          borderColor: '#fff', borderWidth: 2
+          borderColor: '#fff', 
+          borderWidth: 2
         }]
       },
-      options: { responsive: false, plugins: { legend: { display: false } } }
+      options: { 
+        responsive: false,
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(2);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
     })
 
     return () => { lineChart.destroy(); barChart.destroy(); pieChart.destroy() }

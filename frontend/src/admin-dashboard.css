@@ -33,8 +33,10 @@
 .legend.gray { color:#6b7280; }
 
 .bottom-row { display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:16px; }
-.dist-card .dist-content { display:flex; align-items:center; gap:20px; }
-.dist-legend { display:flex; flex-direction:column; gap:10px; }
+.dist-card { position: relative; }
+.dist-card .dist-content { display:flex; align-items:center; justify-content:flex-start; gap:30px; }
+.dist-card canvas { display:block; }
+.dist-legend { display:flex; flex-direction:column; gap:10px; flex:1; }
 .dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; }
 .dot.purple { background:#8b5cf6; }
 .dot.blue { background:#22c55e; }
