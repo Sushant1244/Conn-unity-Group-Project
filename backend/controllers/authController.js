@@ -47,12 +47,11 @@ exports.register = async (req, res) => {
     const otp = generateOTP();
     await db.createOTP(email, otp, parseInt(process.env.OTP_EXPIRY_MINUTES || 10));
     let emailSent = true;
-    try {
-      await sendOTP(email, otp, username);
-    } catch (sendErr) {
+    // Send email asynchronously to avoid blocking response time
+    sendOTP(email, otp, username).catch((sendErr) => {
       emailSent = false;
       console.warn('sendOTP failed during register:', sendErr?.message || sendErr);
-    }
+    });
 
     return res.status(201).json({
       success: true,
@@ -137,12 +136,11 @@ exports.resendOTP = async (req, res) => {
     const otp = generateOTP();
     await db.createOTP(email, otp, parseInt(process.env.OTP_EXPIRY_MINUTES || 10));
     let emailSent = true;
-    try {
-      await sendOTP(email, otp, user.username);
-    } catch (sendErr) {
+    // Send email asynchronously to avoid blocking response time
+    sendOTP(email, otp, user.username).catch((sendErr) => {
       emailSent = false;
       console.warn('sendOTP failed during resend:', sendErr?.message || sendErr);
-    }
+    });
 
     return res.json({
       success: true,
@@ -178,9 +176,12 @@ exports.login = async (req, res) => {
       try {
         const otp = generateOTP();
         await db.createOTP(email, otp, parseInt(process.env.OTP_EXPIRY_MINUTES || 10));
-        await sendOTP(email, otp, user.username);
+        // Don't await email to keep login fast
+        sendOTP(email, otp, user.username).catch((err) => {
+          console.warn('Failed to send OTP during login:', err?.message || err);
+        });
       } catch (err) {
-        console.warn('Failed to send OTP during login:', err);
+        console.warn('Failed to queue OTP during login:', err?.message || err);
       }
 
       return res.status(403).json({
@@ -231,7 +232,10 @@ exports.forgotPassword = async (req, res) => {
     // Generate and send OTP
     const otp = generateOTP();
     await db.createOTP(email, otp, parseInt(process.env.OTP_EXPIRY_MINUTES || 10));
-    await sendPasswordResetOTP(email, otp, user.username);
+    // Send email asynchronously to avoid blocking response time
+    sendPasswordResetOTP(email, otp, user.username).catch((err) => {
+      console.warn('Failed to send password reset OTP:', err?.message || err);
+    });
 
     return res.json({
       success: true,

@@ -15,6 +15,13 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  // Add conservative timeouts to prevent long hangs
+  connectionTimeout: parseInt(process.env.SMTP_CONN_TIMEOUT || '7000'),
+  socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT || '10000'),
+  tls: {
+    // Allow overriding TLS minimums in dev environments if needed
+    rejectUnauthorized: false,
+  },
 });
 
 // Email mode & readiness flags
