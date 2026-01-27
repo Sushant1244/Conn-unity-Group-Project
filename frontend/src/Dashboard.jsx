@@ -6,6 +6,7 @@ import CreatePost from './pages/CreatePost'
 import Profile from './pages/Profile'
 import ChatWidget from './chat/ChatWidget'
 import UserProfileModal from './components/UserProfileModal'
+import { authenticatedFetch } from './authService'
 
 export default function Dashboard() {
   const API_URL = 'http://localhost:4000/api'
@@ -19,6 +20,14 @@ export default function Dashboard() {
   const [createPostOpts, setCreatePostOpts] = useState({ initialMood: null, autoOpenMedia: false })
   const [showProfile, setShowProfile] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isAuthChecking, setIsAuthChecking] = useState(true)
+  const [authError, setAuthError] = useState(null)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem('connunity_current_user')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  })
   const [popularCommunities, setPopularCommunities] = useState([
     { name: 'technology', members: '2.5M', avatarText: 'T' },
     { name: 'gaming', members: '1.6M', avatarText: 'G' },
@@ -37,6 +46,57 @@ export default function Dashboard() {
   const [originalVote, setOriginalVote] = useState(null)
     // Post interactions: votes, saved, comments
     const [interactions, setInteractions] = useState({}) // { [postId]: { vote: -1|0|1, saved: boolean, comments: string[] } }
+
+  // Check authentication token on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('connunity_token')
+        
+        if (!token) {
+          setAuthError('No authentication token found')
+          setTimeout(() => window.location.href = '/index.html', 1500)
+          return
+        }
+
+        // Verify token with backend
+        const response = await fetch(`${API_URL}/check-auth`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const data = await response.json()
+
+        if (!data.success) {
+          localStorage.removeItem('connunity_token')
+          localStorage.removeItem('connunity_current_user')
+          setAuthError('Authentication failed. Please login again.')
+          setTimeout(() => window.location.href = '/index.html', 1500)
+          return
+        }
+
+        // Auth successful - update user data
+        localStorage.setItem('connunity_current_user', JSON.stringify(data.user))
+        setCurrentUser(data.user)
+        if (data.user && data.user.avatar_url) {
+          try { localStorage.setItem(`connunity.avatarUrl.${data.user.id}`, data.user.avatar_url) } catch {}
+          setAvatarUrl(data.user.avatar_url)
+        }
+        setIsAuthChecking(false)
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        setAuthError('Connection error. Please try again.')
+        setTimeout(() => window.location.href = '/index.html', 1500)
+      }
+    }
+
+    checkAuth()
+  }, [])
+
+  
 
   // Notifications
   const [showNotif, setShowNotif] = useState(false)
@@ -97,8 +157,11 @@ export default function Dashboard() {
   const feedRef = useRef(null)
 
   useEffect(() => {
-    const stored = localStorage.getItem('connunity.avatarUrl')
-    if (stored) setAvatarUrl(stored)
+    const uid = currentUser?.id || null
+    if (uid) {
+      const stored = localStorage.getItem(`connunity.avatarUrl.${uid}`)
+      if (stored) setAvatarUrl(stored)
+    }
     try {
       const vote = localStorage.getItem('connunity.poll.vote')
       const counts = localStorage.getItem('connunity.poll.counts')
@@ -109,18 +172,26 @@ export default function Dashboard() {
         setOriginalVote(v)
         setPollSubmitted(true)
       }
-      const i = localStorage.getItem('connunity.post.interactions')
+      const uid = currentUser?.id || 'guest'
+      const i = localStorage.getItem(`connunity.post.interactions.${uid}`)
       if (i) setInteractions(JSON.parse(i))
-      const noti = localStorage.getItem('connunity.notifications')
+      const noti = localStorage.getItem(`connunity.notifications.${uid}`)
       if (noti) setNotifications(JSON.parse(noti))
     } catch {}
-  }, [])
+  }, [currentUser?.id])
 
-  // Fetch posts from backend so they persist across refreshes
+  // Fetch posts from backend after auth is confirmed
   useEffect(() => {
+    if (isAuthChecking) return
     async function loadPosts() {
       try {
-        const resp = await fetch(`${API_URL}/posts?limit=100`)
+        const token = localStorage.getItem('connunity_token')
+        const resp = await fetch(`${API_URL}/posts?limit=100`, {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json'
+          }
+        })
         const data = await resp.json()
         if (data?.success && Array.isArray(data.posts)) {
           const mapped = data.posts.map(toUiPost)
@@ -132,7 +203,7 @@ export default function Dashboard() {
       }
     }
     loadPosts()
-  }, [])
+  }, [isAuthChecking])
 
   function toUiPost(p) {
     // Accept either server post or local shape
@@ -179,15 +250,21 @@ export default function Dashboard() {
     })
   }, [posts])
 
-  // Persist interactions
+  // Persist interactions per user
   useEffect(() => {
-    try { localStorage.setItem('connunity.post.interactions', JSON.stringify(interactions)) } catch {}
-  }, [interactions])
+    try {
+      const uid = currentUser?.id || 'guest'
+      localStorage.setItem(`connunity.post.interactions.${uid}`, JSON.stringify(interactions))
+    } catch {}
+  }, [interactions, currentUser?.id])
 
-  // Persist notifications
+  // Persist notifications per user
   useEffect(() => {
-    try { localStorage.setItem('connunity.notifications', JSON.stringify(notifications)) } catch {}
-  }, [notifications])
+    try {
+      const uid = currentUser?.id || 'guest'
+      localStorage.setItem(`connunity.notifications.${uid}`, JSON.stringify(notifications))
+    } catch {}
+  }, [notifications, currentUser?.id])
 
   const pushNotif = (n) => {
     const item = { id: Date.now() + Math.random(), read: false, time: 'just now', ...n }
@@ -264,26 +341,41 @@ export default function Dashboard() {
   }
 
   const toggleUpvote = (id) => {
-    setInteractions((prev) => {
-      const cur = prev[id] || { vote: 0, saved: false, comments: [] }
-      const vote = cur.vote === 1 ? 0 : 1
-      return { ...prev, [id]: { ...cur, vote } }
-    })
+    ;(async () => {
+      try {
+        const cur = interactions[id] || { vote: 0, saved: false, comments: [] }
+        const next = cur.vote === 1 ? 0 : 1
+        await authenticatedFetch(`/posts/${id}/vote`, { method: 'POST', body: JSON.stringify({ voteType: 1 }) })
+        setInteractions((prev) => ({ ...prev, [id]: { ...cur, vote: next } }))
+      } catch (e) {
+        showToast('Failed to vote')
+      }
+    })()
   }
   const toggleDownvote = (id) => {
-    setInteractions((prev) => {
-      const cur = prev[id] || { vote: 0, saved: false, comments: [] }
-      const vote = cur.vote === -1 ? 0 : -1
-      return { ...prev, [id]: { ...cur, vote } }
-    })
+    ;(async () => {
+      try {
+        const cur = interactions[id] || { vote: 0, saved: false, comments: [] }
+        const next = cur.vote === -1 ? 0 : -1
+        await authenticatedFetch(`/posts/${id}/vote`, { method: 'POST', body: JSON.stringify({ voteType: -1 }) })
+        setInteractions((prev) => ({ ...prev, [id]: { ...cur, vote: next } }))
+      } catch (e) {
+        showToast('Failed to vote')
+      }
+    })()
   }
   const toggleSave = (id) => {
-    setInteractions((prev) => {
-      const cur = prev[id] || { vote: 0, saved: false, comments: [] }
-      const saved = !cur.saved
-      showToast(saved ? 'Saved' : 'Removed from saved')
-      return { ...prev, [id]: { ...cur, saved } }
-    })
+    ;(async () => {
+      try {
+        const data = await authenticatedFetch(`/posts/${id}/save`, { method: 'POST' })
+        const saved = !!data?.saved
+        const cur = interactions[id] || { vote: 0, saved: false, comments: [] }
+        setInteractions((prev) => ({ ...prev, [id]: { ...cur, saved } }))
+        showToast(saved ? 'Saved' : 'Removed from saved')
+      } catch (e) {
+        showToast('Failed to save')
+      }
+    })()
   }
   const toggleComments = (id) => {
     setInteractions((prev) => {
@@ -303,6 +395,27 @@ export default function Dashboard() {
     showToast('Comment added')
     // Simulated reply notification
     setTimeout(() => pushNotif({ type: 'reply', text: 'Someone replied to your comment', postId: id }), 1500)
+  }
+  const handleDeletePost = async (id) => {
+    const ok = window.confirm('Delete this post?')
+    if (!ok) return
+    try {
+      const data = await authenticatedFetch(`/posts/${id}`, { method: 'DELETE' })
+      if (data?.success) {
+        setPosts((prev) => prev.filter((p) => (p.id || p.key) !== id))
+        setInteractions((prev) => {
+          const copy = { ...prev }
+          delete copy[id]
+          return copy
+        })
+        showToast('Post deleted')
+      } else {
+        showToast(data?.message || 'Failed to delete')
+      }
+    } catch (e) {
+      console.warn('Delete failed', e)
+      showToast('Delete failed')
+    }
   }
   const sharePost = (id, p) => {
     const url = window.location.origin + '/#post-' + id
@@ -342,14 +455,32 @@ export default function Dashboard() {
     const name = popularCommunities[idx]?.name || 'community'
     showToast(`Joined c/${name} successfully`)
     try {
-      const raw = localStorage.getItem('connunity.joinedCommunities')
+      const uid = currentUser?.id || 'guest'
+      const raw = localStorage.getItem(`connunity.joinedCommunities.${uid}`)
       const list = raw ? JSON.parse(raw) : []
       if (!list.includes(name)) {
         list.push(name)
-        localStorage.setItem('connunity.joinedCommunities', JSON.stringify(list))
+        localStorage.setItem(`connunity.joinedCommunities.${uid}`, JSON.stringify(list))
       }
     } catch {}
     setTimeout(() => pushNotif({ type: 'community', text: `New post in c/${name}: Welcome thread`, community: name }), 1200)
+  }
+
+  // Render auth states (after all hooks are declared to keep order stable)
+  if (isAuthChecking) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '18px', color: '#666' }}>
+        Loading...
+      </div>
+    )
+  }
+
+  if (authError) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '18px', color: '#d32f2f', textAlign: 'center' }}>
+        {authError}
+      </div>
+    )
   }
 
   if (showProfile) {
@@ -358,7 +489,7 @@ export default function Dashboard() {
         onBack={() => setShowProfile(false)}
         posts={posts}
         interactions={interactions}
-        username="dipendraSah"
+        username={currentUser?.username || 'you'}
         onToggleSave={(id) => toggleSave(id)}
         onToggleUpvote={(id) => toggleUpvote(id)}
         onToggleDownvote={(id) => toggleDownvote(id)}
@@ -404,7 +535,11 @@ export default function Dashboard() {
                 '👤'
               )}
             </button>
-            <button className="logout-btn" onClick={() => window.location.href = '/index.html'}>Logout</button>
+            <button className="logout-btn" onClick={() => {
+              localStorage.removeItem('connunity_token')
+              localStorage.removeItem('connunity_current_user')
+              window.location.href = '/index.html'
+            }}>Logout</button>
             {showNotif && (
               <div className="notif-dropdown" onClick={(e)=>e.stopPropagation()}>
                 <div className="notif-head">
@@ -526,6 +661,7 @@ export default function Dashboard() {
             const baseComments = parseCount(p.comments)
             const likesShown = fmtCount(baseLikes + (inter.vote === 1 ? 1 : inter.vote === -1 ? -1 : 0))
             const commentsShown = fmtCount(baseComments + (inter.comments?.length || 0))
+            const canDelete = !!(currentUser?.username) && (String(p.author || '').toLowerCase() === (`u/${currentUser.username}`).toLowerCase())
             return (
             <div key={key} className="post-card" id={`post-${key}`}>
               <div className="post-header">
@@ -595,6 +731,18 @@ export default function Dashboard() {
                   </svg>
                   <span className="label">{inter.saved ? 'Saved' : 'Save'}</span>
                 </button>
+                {canDelete && (
+                  <button className="pill" style={{background:'#fee2e2', color:'#991b1b'}} onClick={() => handleDeletePost(key)}>
+                    <svg className="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18" />
+                      <path d="M8 6v-2h8v2" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                    <span className="label">Delete</span>
+                  </button>
+                )}
               </div>
               {inter.showComments && (
                 <div className="comments">
@@ -630,10 +778,10 @@ export default function Dashboard() {
                 className="profile-large-avatar"
                 style={avatarUrl ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}
               >
-                {avatarUrl ? '' : 'D'}
+                {avatarUrl ? '' : (currentUser?.username?.[0]?.toUpperCase() || 'U')}
               </div>
               <div className="profile-info">
-                <div className="profile-h1">Dipendra Kumar Sah</div>
+                <div className="profile-h1">{currentUser?.username || 'User'}</div>
                 <div className="profile-sub" style={{marginBottom:'4px'}}>Your personal Connunity homepage.</div>
                 <div className="profile-sub">Come here to check in with your</div>
               </div>

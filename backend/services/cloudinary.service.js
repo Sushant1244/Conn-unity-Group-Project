@@ -42,7 +42,14 @@ function uploadBuffer(buffer, options = {}) {
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: resourceType, overwrite: true },
+      {
+        folder,
+        resource_type: resourceType,
+        overwrite: true,
+        transformation: [
+          { quality: 'auto:good', fetch_format: 'auto' }
+        ]
+      },
       (err, result) => {
         if (err) return reject(err);
         resolve(result);
@@ -59,7 +66,14 @@ async function uploadSource(src, options = {}) {
   ensureConfigured();
   const resourceType = options.resource_type || 'auto';
   const folder = options.folder || 'connunity/uploads';
-  return cloudinary.uploader.upload(src, { folder, resource_type: resourceType, overwrite: true });
+  return cloudinary.uploader.upload(src, {
+    folder,
+    resource_type: resourceType,
+    overwrite: true,
+    transformation: [
+      { quality: 'auto:good', fetch_format: 'auto' }
+    ]
+  });
 }
 
 module.exports = {

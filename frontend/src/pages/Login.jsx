@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { login as authLogin, verifyOTP, resendOTP } from '../authService';
+import { login as authLogin, verifyOTP, resendOTP, forgotPassword } from '../authService';
 
 const Login = ({ onSignupClick, onAdminClick }) => {
   const [email, setEmail] = useState('');
@@ -34,6 +34,12 @@ const Login = ({ onSignupClick, onAdminClick }) => {
   };
 
   useEffect(() => {
+    // Ensure switching accounts starts from a clean state
+    try {
+      localStorage.removeItem('connunity_token');
+      localStorage.removeItem('connunity_current_user');
+    } catch {}
+
     if (!toast) return undefined;
     const timeout = setTimeout(() => setToast(null), toast.duration);
     return () => clearTimeout(timeout);
@@ -141,22 +147,23 @@ const Login = ({ onSignupClick, onAdminClick }) => {
     }
   };
 
-  const handleForgotPassword = (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
     if (!resetEmail) {
       alert('Please enter your email address');
       return;
     }
-
-    // Simulate sending reset email
-    setTimeout(() => {
-      setResetSent(true);
-      setTimeout(() => {
-        setShowForgotPassword(false);
-        setResetSent(false);
-        setResetEmail('');
-      }, 3000);
-    }, 500);
+    try {
+      const resp = await forgotPassword(resetEmail);
+      if (resp.success) {
+        setResetSent(true);
+      } else {
+        alert(resp.message || 'Failed to send reset email');
+      }
+    } catch (err) {
+      console.error('Forgot password error', err);
+      alert('Unable to send reset email. Please try again.');
+    }
   };
 
   return (

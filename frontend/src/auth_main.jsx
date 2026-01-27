@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Admin from './pages/Admin'
 import VerifyOtp from './pages/VerifyOtp'
+import ResetPassword from './pages/ResetPassword'
 
 const mountRoot = () => {
   const rootEl = document.createElement('div')
@@ -20,6 +21,12 @@ const mountRoot = () => {
         <VerifyOtp
           onBackToLogin={() => { window.location.hash = '#login' }}
           onBackToRegister={() => { window.location.hash = '#register' }}
+        />
+      )
+    } else if (hash.startsWith('reset')) {
+      root.render(
+        <ResetPassword
+          onBackToLogin={() => { window.location.hash = '#login' }}
         />
       )
     } else if (hash === 'admin') {

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { compressImage } from '../utils/imageCompression'
 
 const API_URL = 'http://localhost:4000/api'
 
@@ -27,10 +28,13 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
     }
   }, [autoOpenMedia])
 
+  const [publishing, setPublishing] = useState(false)
+
   const publish = async () => {
     if (!canPublish) return
 
     try {
+      setPublishing(true)
       const token = localStorage.getItem('connunity_token')
       // Resolve community ID by name
       let communityId = null
@@ -50,7 +54,19 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
       fd.append('body', body.trim())
       if (tag) fd.append('tag', tag)
       if (mood) fd.append('mood', mood)
-      if (mediaFile) fd.append('media', mediaFile)
+      if (mediaFile) {
+        if (mediaType === 'image') {
+          try {
+            const blob = await compressImage(mediaFile, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 })
+            const imgFile = new File([blob], mediaFile.name.replace(/\.(png|jpg|jpeg|webp)$/i, '.jpg'), { type: 'image/jpeg' })
+            fd.append('media', imgFile)
+          } catch {
+            fd.append('media', mediaFile)
+          }
+        } else {
+          fd.append('media', mediaFile)
+        }
+      }
       if (!mediaFile && mediaUrl) {
         fd.append('mediaUrl', mediaUrl)
         if (mediaType) fd.append('mediaType', mediaType)
@@ -71,6 +87,8 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
     } catch (e) {
       console.error('Create post failed', e)
       alert('Failed to create post')
+    } finally {
+      setPublishing(false)
     }
   }
 
@@ -176,7 +194,7 @@ export default function CreatePost({ onClose, onCreate, communities = [], initia
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={onClose} style={{ padding: '10px 18px', borderRadius: 22, border: '1px solid #cfd6df', background: '#e6edf7', fontWeight: 700 }}>Cancel</button>
-            <button onClick={publish} disabled={!canPublish} style={{ padding: '10px 18px', borderRadius: 22, border: 'none', background: canPublish ? '#2563eb' : '#d0d7e2', color: '#fff', fontWeight: 800, cursor: canPublish ? 'pointer' : 'not-allowed', boxShadow: canPublish ? '0 4px 12px rgba(37,99,235,0.3)' : 'none' }}>Publish</button>
+            <button onClick={publish} disabled={!canPublish || publishing} style={{ padding: '10px 18px', borderRadius: 22, border: 'none', background: canPublish && !publishing ? '#2563eb' : '#d0d7e2', color: '#fff', fontWeight: 800, cursor: canPublish && !publishing ? 'pointer' : 'not-allowed', boxShadow: canPublish && !publishing ? '0 4px 12px rgba(37,99,235,0.3)' : 'none' }}>{publishing ? 'Publishing…' : 'Publish'}</button>
           </div>
         </div>
       </div>

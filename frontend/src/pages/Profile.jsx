@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { compressAvatar } from '../utils/imageCompression'
 
 const API_URL = 'http://localhost:4000/api'
 
@@ -447,7 +448,14 @@ export default function Profile({ onBack, posts = [], interactions = null, usern
                         if (!userRaw || !token) throw new Error('Not authenticated')
                         const user = JSON.parse(userRaw)
                         const fd = new FormData()
-                        fd.append('avatar', avatarFile)
+                        // Compress to 256x256 square for faster upload
+                        try {
+                          const blob = await compressAvatar(avatarFile, { size: 256, quality: 0.85 })
+                          const imgFile = new File([blob], avatarFile.name.replace(/\.(png|jpg|jpeg|webp)$/i, '.jpg'), { type: 'image/jpeg' })
+                          fd.append('avatar', imgFile)
+                        } catch {
+                          fd.append('avatar', avatarFile)
+                        }
                         const resp = await fetch(`${API_URL}/users/${user.id}/avatar`, {
                           method: 'PUT',
                           headers: { Authorization: `Bearer ${token}` },

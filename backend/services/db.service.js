@@ -446,6 +446,8 @@ async function clearAllNotifications(userId) {
 }
 
 module.exports = {
+    // Raw query export for controllers needing direct SQL
+    query,
     // Users
     createUser,
     getUserByEmail,

@@ -7,4 +7,10 @@ const rootEl = document.createElement('div')
 rootEl.id = 'root'
 document.body.appendChild(rootEl)
 
-createRoot(rootEl).render(<Dashboard />)
+// Check if user has valid token before rendering dashboard
+const token = localStorage.getItem('connunity_token')
+if (!token) {
+  window.location.href = '/index.html'
+} else {
+  createRoot(rootEl).render(<Dashboard />)
+}

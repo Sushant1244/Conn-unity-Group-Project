@@ -1,5 +1,40 @@
 const API_URL = 'http://localhost:4000/api';
 
+export function getToken() {
+  return localStorage.getItem('connunity_token');
+}
+
+// Helper function to make authenticated API calls
+export async function authenticatedFetch(endpoint, options = {}) {
+  const token = getToken();
+  
+  if (!token) {
+    throw new Error('No authentication token');
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers
+  };
+
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers
+  });
+
+  const data = await response.json();
+
+  // If token is invalid, redirect to login
+  if (response.status === 401) {
+    localStorage.removeItem('connunity_token');
+    localStorage.removeItem('connunity_current_user');
+    window.location.href = '/index.html';
+  }
+
+  return data;
+}
+
 export async function register({ username, email, password }) {
   const response = await fetch(`${API_URL}/register`, {
     method: 'POST',
@@ -81,8 +116,4 @@ export function currentUser() {
   } catch (e) {
     return null;
   }
-}
-
-export function getToken() {
-  return localStorage.getItem('connunity_token');
 }

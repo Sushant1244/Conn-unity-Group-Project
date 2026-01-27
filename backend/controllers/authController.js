@@ -283,3 +283,28 @@ exports.resetPassword = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error during password reset' });
   }
 };
+
+// Check token validity - used on dashboard refresh
+exports.checkAuth = async (req, res) => {
+  try {
+    // Middleware already verified token and attached user
+    const user = await db.getUserById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        avatar_url: user.avatar_url,
+        email_verified: user.email_verified
+      }
+    });
+  } catch (error) {
+    console.error('Check auth error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

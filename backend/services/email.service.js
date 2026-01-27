@@ -324,6 +324,8 @@ If you didn't request this code, please ignore this email.
  * Send password reset email
  */
 async function sendPasswordResetOTP(email, otp, username = 'User') {
+  const frontendBase = process.env.FRONTEND_BASE_URL || 'http://localhost:5173'
+  const resetLink = `${frontendBase}/auth.html#reset?email=${encodeURIComponent(email)}`
     const mailOptions = {
         from: process.env.SMTP_FROM,
         to: email,
@@ -349,11 +351,14 @@ async function sendPasswordResetOTP(email, otp, username = 'User') {
           </div>
           <h2>Password Reset Request</h2>
           <p>Hi ${username},</p>
-          <p>We received a request to reset your password. Use the code below to proceed:</p>
+          <p>We received a request to reset your password. Use the code below to proceed, or click the button to go to the reset page:</p>
           <div class="otp-box">
             <p style="margin: 0; font-size: 14px;">Your Reset Code</p>
             <div class="otp-code">${otp}</div>
             <p style="margin: 0; font-size: 12px;">Valid for ${process.env.OTP_EXPIRY_MINUTES || 10} minutes</p>
+          </div>
+          <div style="text-align:center; margin: 16px 0;">
+            <a href="${resetLink}" style="display:inline-block; padding: 12px 24px; background:#5b2fff; color:#fff; border-radius:8px; text-decoration:none; font-weight:700">Reset Password</a>
           </div>
           <p><strong>Security Notice:</strong> If you didn't request this password reset, please ignore this email and ensure your account is secure.</p>
           <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">© 2025 Connunity</p>
