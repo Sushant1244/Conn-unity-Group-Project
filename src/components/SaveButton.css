@@ -121,7 +121,7 @@
   height: 18px;
 }
 
-/* Icon only variant */
+
 .save-button.icon-only {
   padding: 12px;
   border-radius: 50%;
@@ -136,7 +136,7 @@
   display: none;
 }
 
-/* Light variant (for dark backgrounds) */
+
 .save-button.light {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
@@ -154,7 +154,7 @@
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Responsive */
+
 @media (max-width: 480px) {
   .save-button {
     padding: 6px 12px;

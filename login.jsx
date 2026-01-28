@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 
-// Note: This file is kept for reference.
-// The app uses src/components/Login.jsx instead.
+
 export default function Login({ open, onClose, onSuccess }){
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,7 +13,7 @@ export default function Login({ open, onClose, onSuccess }){
     setError('')
     if (!email.includes('@')) return setError('Please enter a valid email')
     if (!password) return setError('Password required')
-  // demo: accept any password for now
+  
   const user = { id: 'u' + Date.now(), email }
   onSuccess && onSuccess(user)
     onClose && onClose()

@@ -6,11 +6,11 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [actionType, setActionType] = useState(''); // 'ban' or 'unban'
+  const [actionType, setActionType] = useState(''); 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'banned'
+  const [filterStatus, setFilterStatus] = useState('all'); 
 
-  // Simulate fetching users from API
+  
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -18,11 +18,7 @@ const AdminPanel = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Replace with actual API call
-      // const response = await fetch('/api/admin/users');
-      // const data = await response.json();
       
-      // Mock data for demonstration
       const mockUsers = [
         { id: 1, username: 'john_doe', email: 'john@example.com', status: 'active', joinDate: '2024-01-15' },
         { id: 2, username: 'jane_smith', email: 'jane@example.com', status: 'active', joinDate: '2024-02-20' },
@@ -40,14 +36,7 @@ const AdminPanel = () => {
 
   const handleBanUser = async (userId, reason) => {
     try {
-      // Replace with actual API call
-      // const response = await fetch(`/api/admin/users/${userId}/ban`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ reason })
-      // });
-      
-      // Update local state
+    
       setUsers(users.map(user => 
         user.id === userId 
           ? { ...user, status: 'banned', banReason: reason } 
@@ -63,12 +52,7 @@ const AdminPanel = () => {
 
   const handleUnbanUser = async (userId) => {
     try {
-      // Replace with actual API call
-      // const response = await fetch(`/api/admin/users/${userId}/unban`, {
-      //   method: 'POST'
-      // });
       
-      // Update local state
       setUsers(users.map(user => 
         user.id === userId 
           ? { ...user, status: 'active', banReason: null } 
@@ -106,7 +90,7 @@ const AdminPanel = () => {
     closeConfirmDialog();
   };
 
-  // Filter and search users
+  
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -201,7 +185,7 @@ const AdminPanel = () => {
         </table>
       </div>
 
-      {/* Confirmation Dialog */}
+      {}
       {showConfirmDialog && (
         <div className="modal-overlay">
           <div className="modal-content">
