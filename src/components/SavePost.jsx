@@ -14,13 +14,7 @@ const SavePost = () => {
   const fetchSavedPosts = async () => {
     setLoading(true);
     try {
-      // Replace with actual API call
-      // const response = await fetch('/api/posts/saved', {
-      //   headers: { 'Authorization': `Bearer ${token}` }
-      // });
-      // const data = await response.json();
       
-      // Mock data for demonstration
       const mockSavedPosts = [
         {
           id: 1,
@@ -74,11 +68,7 @@ const SavePost = () => {
 
   const handleUnsavePost = async (postId) => {
     try {
-      // Replace with actual API call
-      // await fetch(`/api/posts/${postId}/unsave`, {
-      //   method: 'DELETE',
-      //   headers: { 'Authorization': `Bearer ${token}` }
-      // });
+     
       
       setSavedPosts(savedPosts.filter(post => post.id !== postId));
       alert('Post removed from saved items');
@@ -89,9 +79,9 @@ const SavePost = () => {
   };
 
   const handleViewPost = (postId) => {
-    // Navigate to full post view
+   
     console.log('Viewing post:', postId);
-    // window.location.href = `/post/${postId}`;
+    
   };
 
   const formatDate = (dateString) => {
@@ -105,7 +95,7 @@ const SavePost = () => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Filter and sort posts
+  
   const filteredPosts = savedPosts
     .filter(post => 
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
