@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './SaveButton.css';
 
-// This component can be used on individual posts to save/unsave them
+
 const SaveButton = ({ postId, initialSaved = false, onSaveChange }) => {
   const [isSaved, setIsSaved] = useState(initialSaved);
   const [isLoading, setIsLoading] = useState(false);
@@ -11,26 +11,17 @@ const SaveButton = ({ postId, initialSaved = false, onSaveChange }) => {
   }, [initialSaved]);
 
   const handleToggleSave = async (e) => {
-    e.stopPropagation(); // Prevent triggering parent click events
+    e.stopPropagation(); 
     
     setIsLoading(true);
     try {
       if (isSaved) {
-        // Unsave the post
-        // await fetch(`/api/posts/${postId}/unsave`, {
-        //   method: 'DELETE',
-        //   headers: { 'Authorization': `Bearer ${token}` }
-        // });
+        
         
         setIsSaved(false);
         onSaveChange && onSaveChange(postId, false);
       } else {
-        // Save the post
-        // await fetch(`/api/posts/${postId}/save`, {
-        //   method: 'POST',
-        //   headers: { 'Authorization': `Bearer ${token}` }
-        // });
-        
+      
         setIsSaved(true);
         onSaveChange && onSaveChange(postId, true);
       }
